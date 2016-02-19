@@ -9,7 +9,8 @@ class DeadPoolSupervisor extends Actor{
   implicit val timeout = akka.util.Timeout(1 minute)
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10,withinTimeRange = 10 minutes){
-      case _:Exception =>
+      case e:Exception =>
+          println(e)
         Restart
     }
 

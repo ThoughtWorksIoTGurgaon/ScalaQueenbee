@@ -2,7 +2,7 @@ package com.supersaiyyans.packet
 
 import org.scalatest.FunSuite
 
-class PacketTest extends FunSuite {
+class JsonPacketTest extends FunSuite {
 
 
 }

@@ -42,8 +42,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.6",
   "net.sigusr" %% "scala-mqtt-client" % "0.6.0",
   "com.softwaremill.macwire" %% "macros" % "2.1.0" %"provided",
-  "com.softwaremill.macwire" %% "util" % "2.1.0",
-  "com.softwaremill.macwire" %% "proxy" % "2.1.0",
   "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.14",
   "com.typesafe.akka" %% "akka-slf4j" % "2.3.11",
   "com.softwaremill.macwire" %% "macros" % "2.1.0",
