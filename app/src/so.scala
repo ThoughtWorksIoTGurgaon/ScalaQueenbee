@@ -1,0 +1,5 @@
+package src
+
+class so {
+
+}

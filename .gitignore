@@ -1,0 +1,35 @@
+*.class
+
+# sbt specific
+.cache
+.history
+.lib/
+.cache-main
+.classpath
+.project
+.settings
+app-2.11
+bin
+logs
+test-2.11
+client/dist
+client/bower_components
+client/node_modules
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+
+#IDEA IGNORE
+.idea
+.idea_modules/
+projectFilesBackup/
+projectFilesBackup1/
+journal
+snapshots
