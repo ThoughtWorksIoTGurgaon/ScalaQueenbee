@@ -6,38 +6,33 @@ import akka.actor.Actor
 import com.supersaiyyans.packet.JsonCmdPacket
 import net.sigusr.mqtt.api.{Connect, Connected, Manager, Publish}
 import src.main.scala.com.supersaiyyans.packet.WritePacket
-import src.main.scala.com.supersaiyyans.service.{Service, SwitchService}
+import src.main.scala.com.supersaiyyans.store.ServiceStore
 
 
-class DeadPool extends Actor {
+class MQTTPublisherProxy extends Actor {
 
   val MQTTPORT = 1883
   val MQTTHOST = "192.168.43.11"
 
-  val serviceMap = Map[String, Service](
-    "my-device-id:1" -> new SwitchService
-  )
-
   val mqttManager = context.actorOf(
     Manager.props(new InetSocketAddress(InetAddress.getByName(MQTTHOST), MQTTPORT)))
-  mqttManager ! Connect("SCALA_DISCOVERY_ACTOR")
+  mqttManager ! Connect("SCALA_PUBLISHER_ACTOR")
 
 
   def receive = {
-    case Connected => println("Connected yo! from:" + sender)
+    case Connected => println(s"${self.path.name} - Connected to MQTT ")
       context.become(ready)
-    case _ => println("Got something yadda")
+    case _ =>
+      println("Message received before connect! => Discarding")
   }
 
   def ready: Receive = {
     case packet: JsonCmdPacket =>
-      val writePacket: WritePacket = serviceMap
-        .get(packet.getServiceAddress())
-        .get
+      val writePacket: WritePacket = ServiceStore
+        .get(packet.getServiceAddress()).get
         .process(packet)
-
-      println("Message Aagaya" + writePacket)
+      println(s"Sending packet ${writePacket} to device id: ${writePacket.deviceId}")
       mqttManager ! Publish("/device/" + writePacket.deviceId + "/cmd", writePacket.toByteData)
-    case _ => println("Ready now")
+    case _ => println(s"${self.path.name} - Ready now")
   }
 }

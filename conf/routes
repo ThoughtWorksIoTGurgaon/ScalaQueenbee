@@ -3,5 +3,7 @@
 # ~~~~
 
 POST /service/cmd com.supersaiyyans.controller.MainController.serviceCommand()
+GET /services com.supersaiyyans.controller.MainController.listServices
+OPTIONS /*path com.supersaiyyans.controller.MainController.option(path)
 
 #
