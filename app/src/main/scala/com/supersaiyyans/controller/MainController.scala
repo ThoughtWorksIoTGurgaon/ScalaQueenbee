@@ -1,16 +1,16 @@
 package com.supersaiyyans.controller
 
 import akka.actor.Props
+import com.supersaiyyans.actors.{MQTTPublisherProxySupervisor, MQTTSubscriberProxySupervisor}
 import com.supersaiyyans.packet.JsonCmdPacket
-import play.api.Play.current
+import com.supersaiyyans.store.ServiceStore
 import play.api.libs.concurrent.Akka
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
-import src.main.scala.com.supersaiyyans.actors.{MQTTPublisherProxySupervisor, MQTTSubscriberProxySupervisor}
-import src.main.scala.com.supersaiyyans.store.ServiceStore
 
 object MainController extends Controller{
 
+  import play.api.Play.current
   val mqttPublisherProxySupervisor = Akka.system.actorOf(Props[MQTTPublisherProxySupervisor],"MQTTPublisherProxySupervisor")
  val mqttSubscriberProxySupervisor = Akka.system.actorOf(Props[MQTTSubscriberProxySupervisor],"MQTTSubscriberProxySupervisor")
 
@@ -18,9 +18,9 @@ object MainController extends Controller{
   def serviceCommand= Action(parse.json){
     request=>
       request.body.validate[JsonCmdPacket].map {
-        packet=>
-          mqttPublisherProxySupervisor ! packet
-          Ok(packet.toString).withHeaders("Access-Control-Allow-Origin"->"*")
+        jsonRequest=>
+          mqttPublisherProxySupervisor ! jsonRequest
+          Ok(jsonRequest.toString).withHeaders("Access-Control-Allow-Origin"->"*")
       }.recoverTotal(e=>BadRequest)
 
 
@@ -34,6 +34,8 @@ object MainController extends Controller{
         "Access-Control-Allow-Credentials" -> "true",
         "Access-Control-Max-Age" -> (0).toString)
   }
+
+
   def listServices = Action{
     request=>
       Ok(

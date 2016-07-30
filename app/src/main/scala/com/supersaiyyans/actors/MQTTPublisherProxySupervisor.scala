@@ -1,4 +1,4 @@
-package src.main.scala.com.supersaiyyans.actors
+package com.supersaiyyans.actors
 
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Props, OneForOneStrategy, Actor}

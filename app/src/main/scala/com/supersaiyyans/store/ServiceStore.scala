@@ -1,7 +1,7 @@
-package src.main.scala.com.supersaiyyans.store
+package com.supersaiyyans.store
 
-import src.main.scala.com.supersaiyyans.service.SwitchService.SwitchServiceState
-import src.main.scala.com.supersaiyyans.service.{Service, SwitchService}
+import com.supersaiyyans.service.{SwitchService, Service}
+import com.supersaiyyans.service.SwitchService.SwitchServiceState
 
 
 object ServiceStore {
@@ -19,10 +19,13 @@ object ServiceStore {
 
 
   def add(deviceId: String, serviceId: String,profileId: String) {
-    val serviceAddr: String = deviceId + ":" + serviceId
+    val serviceAddr: String = {
+      deviceId + ":" + serviceId
+    }
     if (!serviceMap.contains(serviceAddr)){
       println("Adding switch service")
-      serviceMap += serviceAddr -> new SwitchService(serviceAddr)
+      serviceMap += serviceAddr -> SwitchService(serviceAddr,SwitchServiceState("OFF"))
+
     }
   }
 

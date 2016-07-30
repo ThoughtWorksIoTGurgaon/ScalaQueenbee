@@ -1,15 +1,20 @@
-package src.main.scala.com.supersaiyyans.actors
+package com.supersaiyyans.actors
 
-import src.main.scala.com.supersaiyyans.service.DiscoveryService
-import java.net.{InetSocketAddress, InetAddress}
+import java.net.{InetAddress, InetSocketAddress}
 
 import akka.actor.Actor
+import com.supersaiyyans.service.DiscoveryService
+import com.typesafe.config.ConfigFactory
 import net.sigusr.mqtt.api._
 
 class MQTTSubscriberProxy extends Actor {
 
-  val MQTTPORT = 1883
-  val MQTTHOST = "192.168.43.11"
+
+
+  import net.ceedubs.ficus.Ficus._
+  val MQTTPORT = ConfigFactory.load.as[Int]("mqtt.port")
+  val MQTTHOST = ConfigFactory.load.as[String]("mqtt.host")
+
   val subscribeTopic = "/device/+/data"
 
   val mqttManager = context.actorOf(

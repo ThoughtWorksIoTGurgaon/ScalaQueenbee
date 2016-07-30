@@ -1,25 +1,22 @@
-package src.main.scala.com.supersaiyyans.service
+package com.supersaiyyans.service
 
-import com.supersaiyyans.packet.JsonCmdPacket
+import com.supersaiyyans.packet.{JsonCmdPacket, WritePacket}
+import com.supersaiyyans.service.SwitchService.SwitchServiceState
 import play.api.libs.json.{JsObject, Json}
-import src.main.scala.com.supersaiyyans.packet.WritePacket
-import src.main.scala.com.supersaiyyans.service.SwitchService.SwitchServiceState
 
 
 trait ServiceState
 
 trait Service[A<: ServiceState]{
   def process(jsonCmdJsonPacket: JsonCmdPacket): WritePacket
-  var state: A
-  def toJson(): JsObject
+  val state: A
+  implicit def toJson(): JsObject
 }
 
-class SwitchService(val serviceAddr: String) extends Service[SwitchServiceState]{
+case class SwitchService(serviceAddr: String,state: SwitchServiceState) extends Service[SwitchServiceState]{
 
-  var state = SwitchServiceState("OFF")
-  var deviceId: String = serviceAddr.split(":")(0)
-  var serviceId : Int = Integer.parseInt(serviceAddr.split(":")(1))
-
+  val deviceId: String = serviceAddr.split(":")(0)
+  val serviceId : Int = Integer.parseInt(serviceAddr.split(":")(1))
 
   def toJson(): JsObject = {
     Json.obj(
@@ -47,12 +44,14 @@ class SwitchService(val serviceAddr: String) extends Service[SwitchServiceState]
 
 
   def updateState(state: SwitchServiceState) = {
-    this.state = state
+//    this.state = state
   }
 
 }
 
 object SwitchService {
+
+
 
   case class SwitchServiceState(val value: String) extends ServiceState
 

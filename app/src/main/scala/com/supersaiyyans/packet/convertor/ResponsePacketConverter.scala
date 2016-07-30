@@ -1,4 +1,4 @@
-package src.main.scala.com.supersaiyyans.packet.convertor
+package com.supersaiyyans.packet.convertor
 
 class ResponsePacketConverter {
 

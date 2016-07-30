@@ -1,6 +1,6 @@
-package src.main.scala.com.supersaiyyans.service
+package com.supersaiyyans.service
 
-import src.main.scala.com.supersaiyyans.store.ServiceStore
+import com.supersaiyyans.store.ServiceStore
 
 
 object DiscoveryService {
