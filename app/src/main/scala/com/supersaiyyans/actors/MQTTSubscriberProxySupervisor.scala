@@ -20,3 +20,7 @@ class MQTTSubscriberProxySupervisor extends Actor{
   }
 
 }
+
+object MQTTSubscriberProxySupervisor {
+  def props = Props[MQTTSubscriberProxySupervisor]
+}

@@ -1,38 +1,45 @@
 package com.supersaiyyans.packet
 
-trait BinaryPacket {
+
+trait Packet {
   val toByteData: Vector[Byte]
+  val getServiceAddress: String
+  val getSourceAddress: String
+  val getDestinationAddress: String
 }
 
-case class WritePacket(deviceId: String, serviceId: Int, charsData: Array[(Int, Array[Byte])]) extends BinaryPacket {
+
+trait BinaryPacket extends Packet {
+}
+
+case class WritePacket(deviceId: String, serviceId: Int, payload: Array[(Int, Array[Byte])], source: String) extends BinaryPacket {
+
   override val toByteData: Vector[Byte] = {
-
-    val byteList: List[Vector[Byte]]=
-      List(
-        1 //version
-        ,1 //Packet Type
-        ,1,1,1 //Unused Pack
-        ,serviceId //ServiceId
-        ,charsData.length) //Characteristic Count
-        .map(x=>Vector(x.toByte))
-              
-    val charData: Array[Byte] = charsData.map{
-      t =>
-        t._1.toByte +: t._2.length.toByte +: t._2
-    }.flatten
-
-
-    val right: Vector[Byte] = charData.tail.foldLeft(Vector(charData.head))((b, a)=>b ++ Vector(a))
-    println("Right: ")
-    right.map(x=>println(x.toInt.toBinaryString))
-
-    println("ByteList: ")
-      byteList.tail.foldLeft(byteList.head)((b , a)=> b ++ a).map(x=>println(x.toInt.toBinaryString))
-    println("Z: ")
-    val z = byteList.tail.foldLeft(byteList.head)((b , a)=> b ++ a) ++
-      right
-    z.map(x=>println(x.toInt.toBinaryString))
-    z
+    (transformHeader ++ transformPayload).toVector
   }
 
+
+  override val getServiceAddress = serviceId.toString
+
+  def transformPayload: Array[Byte] = {
+    payload.flatMap {
+      case (characteristic, data) =>
+        characteristic.toByte +:
+          data.length.toByte +:
+          data
+    }
+  }
+
+  def transformHeader: Seq[Byte] = {
+    Seq(
+      1 //version
+      , 1 //Packet Type
+      , 1, 1, 1 //Unused Pack
+      , serviceId //ServiceId
+      , payload.length) //Characteristic Count
+      .map(x => x.toByte)
+  }
+
+  override val getSourceAddress: String = source
+  override val getDestinationAddress: String = ???
 }

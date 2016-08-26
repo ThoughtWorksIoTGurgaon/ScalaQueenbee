@@ -1,14 +1,24 @@
 package com.supersaiyyans.store
 
-import com.supersaiyyans.service.{SwitchService, Service}
+import akka.actor.Actor
+import com.supersaiyyans.service.{ServiceState, SwitchService, Service}
 import com.supersaiyyans.service.SwitchService.SwitchServiceState
+
+
+class TheEnchantress extends Actor {
+
+  def receive = {
+    case _=>
+  }
+
+}
 
 
 object ServiceStore {
   type DeviceId = String
-  var serviceMap = Map[DeviceId, Service[SwitchServiceState]]()
+  var serviceMap = Map[DeviceId, Service[ServiceState]]()
 
-  def get(serviceAddr: String): Option[Service[SwitchServiceState]] = {
+  def get(serviceAddr: String): Option[Service[ServiceState]] = {
     serviceMap.get(serviceAddr)
   }
 
@@ -24,7 +34,7 @@ object ServiceStore {
     }
     if (!serviceMap.contains(serviceAddr)){
       println("Adding switch service")
-      serviceMap += serviceAddr -> SwitchService(serviceAddr,SwitchServiceState("OFF"))
+//      serviceMap += serviceAddr -> new SwitchService(serviceAddr,SwitchServiceState("OFF"))
 
     }
   }

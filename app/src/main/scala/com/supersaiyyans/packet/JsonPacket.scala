@@ -2,19 +2,22 @@ package com.supersaiyyans.packet
 
 import play.api.libs.json.{Format, Json}
 
-trait JsonPacket {
-  def toByteData(): Vector[Byte]
-
-  def getServiceAddress(): String
+trait JsonPacket extends Packet{
 }
+
+trait Command
 
 
 case class JsonCmdPacket(val serviceAddress: String, val cmd: String) extends JsonPacket {
-  def toByteData(): Vector[Byte] = {
-    return Vector(cmd.toByte)
+
+  val toByteData : Vector[Byte] = {
+    Vector(cmd.toByte)
   }
 
-  override def getServiceAddress(): String = serviceAddress
+  override val getServiceAddress: String = serviceAddress
+
+  override val getSourceAddress: String = ???
+  override val getDestinationAddress: String = ???
 }
 
 object JsonCmdPacket {

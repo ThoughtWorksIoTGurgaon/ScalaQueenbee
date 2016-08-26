@@ -7,13 +7,13 @@ import play.api.libs.json.{JsObject, Json}
 
 trait ServiceState
 
-trait Service[A<: ServiceState]{
-  def process(jsonCmdJsonPacket: JsonCmdPacket): WritePacket
-  val state: A
+trait Service[A <: ServiceState]{
+  def processAndChangeState(jsonCmdJsonPacket: JsonCmdPacket): WritePacket
+  var state: A
   implicit def toJson(): JsObject
 }
 
-case class SwitchService(serviceAddr: String,state: SwitchServiceState) extends Service[SwitchServiceState]{
+case class SwitchService(serviceAddr: String,var state: SwitchServiceState) extends Service[SwitchServiceState]{
 
   val deviceId: String = serviceAddr.split(":")(0)
   val serviceId : Int = Integer.parseInt(serviceAddr.split(":")(1))
@@ -27,18 +27,18 @@ case class SwitchService(serviceAddr: String,state: SwitchServiceState) extends 
   }
 
 
-  override def process(jsonCmdJsonPacket: JsonCmdPacket): WritePacket = {
+  override def processAndChangeState(jsonCmdJsonPacket: JsonCmdPacket): WritePacket = {
     val serviceAddressSplit: Array[String] = jsonCmdJsonPacket
-      .getServiceAddress()
+      .getServiceAddress
       .split(":")
 
     jsonCmdJsonPacket.cmd.toUpperCase match {
       case "ON" =>
         updateState(SwitchServiceState("ON"))
-        new WritePacket(deviceId, serviceId, Array(Tuple2(1,Array(2.toByte))))
+        new WritePacket(deviceId, serviceId, Array(Tuple2(1,Array(2.toByte))),"")
       case "OFF" =>
         updateState(SwitchServiceState("OFF"))
-        new WritePacket(deviceId, serviceId, Array(Tuple2(1,Array(1.toByte))))
+        new WritePacket(deviceId, serviceId, Array(Tuple2(1,Array(1.toByte))),"")
     }
   }
 

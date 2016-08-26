@@ -19,4 +19,9 @@ class MQTTPublisherProxySupervisor extends Actor{
     case x@_ => mqttPublisherProxy ! x
   }
 
+
+}
+object MQTTPublisherProxySupervisor {
+
+  def props = Props[MQTTPublisherProxySupervisor]
 }
