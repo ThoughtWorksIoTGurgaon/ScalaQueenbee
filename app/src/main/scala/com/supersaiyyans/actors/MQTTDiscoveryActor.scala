@@ -1,16 +1,18 @@
-package src.main.scala.com.supersaiyyans.actors
+package com.supersaiyyans.actors
 
 import java.net.{InetAddress, InetSocketAddress}
 
-import akka.actor.{Props, Actor}
 import akka.actor.Actor.Receive
+import akka.actor.{Actor, Props}
+import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
+import com.supersaiyyans.actors.SupportedProtocolTypes.{MQTT, ProtocolType}
 import com.supersaiyyans.actors.TheEnchantress.ServiceDiscovered
 import com.supersaiyyans.util.Logger._
 import com.typesafe.config.ConfigFactory
 import net.sigusr.mqtt.api._
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 
 /*
@@ -20,7 +22,7 @@ TODO:
 3.Supervisor Strategy
  */
 
-class MQTTDiscoveryActor extends Actor with RetryConnect {
+class MQTTDiscoveryActor extends Actor with RetryConnect with ProtocolDescriber with MQTTActor {
 
   import net.ceedubs.ficus.Ficus._
 
@@ -36,7 +38,7 @@ class MQTTDiscoveryActor extends Actor with RetryConnect {
 
 
   debugWithArgs("Starting MQTT Discovery Actor with args", Seq("MQTTHOST" -> MQTTHOST, "MQTTPORT" -> MQTTPORT.toString): _*)
-  scheduler.scheduleOnce(2 minutes, self, TryConnect)
+  scheduler.scheduleOnce(1 minutes, self, TryConnect)
 
 
   type ProfileId = String
@@ -66,6 +68,7 @@ class MQTTDiscoveryActor extends Actor with RetryConnect {
   def initializing: Receive = {
 
     case TryConnect =>
+      debug("-----------------RECEIVED TryConnect--------------")
       mqttManager ! Connect("QUEENBEE_MQTT_DISCOVERY_ACTOR_CONNECTING")
       scheduler.scheduleOnce(5 minutes, self, TryConnect)
     case Connected =>
@@ -92,15 +95,19 @@ class MQTTDiscoveryActor extends Actor with RetryConnect {
         case _ => debug("Unknown message received")
       }
       debug("Received byteVector:  " + byteVector)
+    case WhichProtocol =>
+      sender ! myProtocol
     case x@_ =>
       debug(s"Unknown message received:${x}")
   }
 }
 
 object MQTTDiscoveryActor {
-
- def props = Props[MQTTDiscoveryActor]
+  object WhichProtocol
+  def props = Props[MQTTDiscoveryActor]
 }
+
+
 
 trait RetryConnect {
   this: {
@@ -108,5 +115,25 @@ trait RetryConnect {
   } =>
 
   object TryConnect
+
+}
+
+trait ProtocolDescriber {
+  this: Actor =>
+  val myProtocol: ProtocolType
+}
+
+trait MQTTActor {
+  this: ProtocolDescriber =>
+  val myProtocol = MQTT
+
+}
+
+
+object SupportedProtocolTypes {
+
+  sealed trait ProtocolType
+
+  case object MQTT extends ProtocolType
 
 }

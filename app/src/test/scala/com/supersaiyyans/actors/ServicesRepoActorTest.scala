@@ -1,17 +1,23 @@
 package com.supersaiyyans.actors
 
-import com.supersaiyyans.actors.ServicesRepoActor.Running
-import org.scalatest.FunSuite
+import akka.actor.ActorSystem
 import akka.testkit.TestFSMRef
-import akka.actor.{ActorSystem, FSM}
-import scala.concurrent.duration._
+import com.supersaiyyans.actors.ServicesRepoActor.Running
+import org.scalatest.{Matchers, FunSpec}
 
-class ServicesRepoActorTest extends FunSuite {
+class ServicesRepoActorTest extends FunSpec  with Matchers{
 
-  implicit val actorSystem = ActorSystem()
 
-  val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
+  describe("ServiceActorRepo Spec") {
 
-  assert(serviceRepoActorRef.stateName  == Running)
+    it("Should start actor with correct state") {
+      implicit val actorSystem = ActorSystem()
+
+      val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
+
+      serviceRepoActorRef.stateName.shouldBe(Running)
+
+    }
+  }
 
 }

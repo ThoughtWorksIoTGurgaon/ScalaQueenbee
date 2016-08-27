@@ -1,11 +1,12 @@
 package com.supersaiyyans.actors
 
 import akka.actor.{ActorRef, FSM, Props}
+import com.supersaiyyans.actors.ServiceActors._
 import com.supersaiyyans.packet._
-import src.main.scala.com.supersaiyyans.actors.RetryConnect
-import scala.concurrent.duration._
-import ServiceActors._
+
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.duration._
+import com.supersaiyyans.util.Logger._
 
 
 
@@ -30,7 +31,7 @@ object PacketTransformers {
 
 
 
-class SwitchServiceActor(deviceId: String, serviceId: String, switchData: SwitchServiceData, val serviceRepoActor: ActorRef)
+class SwitchServiceActor(deviceId: String, serviceId: String, switchData: SwitchServiceData, serviceRepoActor: ActorRef, )
   extends ServiceActor {
 
   val mqttActorRef = context
@@ -38,6 +39,8 @@ class SwitchServiceActor(deviceId: String, serviceId: String, switchData: Switch
   startWith(AwaitingDeviceConnect, switchData)
 
   context.system.scheduler.scheduleOnce(2 minutes,self,TryConnect)
+  debug("")
+
 
   when(AwaitingDeviceConnect) {
     case Event(DeviceConnected, _) =>

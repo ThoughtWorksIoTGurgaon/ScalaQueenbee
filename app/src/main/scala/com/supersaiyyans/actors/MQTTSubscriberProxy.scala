@@ -3,7 +3,6 @@ package com.supersaiyyans.actors
 import java.net.{InetAddress, InetSocketAddress}
 
 import akka.actor.Actor
-import com.supersaiyyans.service.DiscoveryService
 import com.typesafe.config.ConfigFactory
 import net.sigusr.mqtt.api._
 import com.supersaiyyans.util.Logger._
@@ -39,7 +38,6 @@ class MQTTSubscriberProxy extends Actor {
       topic match {
         case TopicDeviceExtractor(_, deviceId: String, _) =>
           debug("Received a message from device: " + deviceId)
-          DiscoveryService.process(deviceId, byteVector)
         case _ => debug("Unknown message received")
       }
       debug("Received: " + byteVector)

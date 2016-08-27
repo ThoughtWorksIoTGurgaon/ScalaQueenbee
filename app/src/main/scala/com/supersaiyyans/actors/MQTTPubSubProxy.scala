@@ -1,25 +1,24 @@
 package src.main.scala.com.supersaiyyans.actors
 
-import java.net.{InetAddress, InetSocketAddress}
+import java.net.InetSocketAddress
 
-import akka.actor.Actor
-import com.supersaiyyans.packet.{WritePacket, JsonCmdPacket}
-import com.supersaiyyans.service.DiscoveryService
-import com.supersaiyyans.store.ServiceStore
+import akka.actor.{Actor, Props}
+import com.supersaiyyans.actors.RetryConnect
+import com.supersaiyyans.packet.JsonCmdPacket
 import com.supersaiyyans.util.Logger._
 import com.typesafe.config.ConfigFactory
 import net.sigusr.mqtt.api._
 
 
 //TODO: Queued Message Buffer
-class MQTTPubSubProxy extends Actor with RetryConnect{
+class MQTTPubSubProxy(deviceId: String) extends Actor with RetryConnect {
 
   import net.ceedubs.ficus.Ficus._
 
   val MQTTPORT = ConfigFactory.load.as[Int]("mqtt.port")
   val MQTTHOST = ConfigFactory.load.as[String]("mqtt.host")
   var queuedMessagesBuffer = Seq.empty
-  val subscribeTopic = "/device/+/data"
+  val subscribeTopic = s"/device/${deviceId}/data"
 
 
   debug(s"Building publisher with port: ${MQTTPORT} and host: ${MQTTHOST}")
@@ -37,24 +36,18 @@ class MQTTPubSubProxy extends Actor with RetryConnect{
 
   def ready: Receive = {
     case packet: JsonCmdPacket =>
-//      val writePacket: WritePacket = ServiceStore
-//        .get(packet.getServiceAddress())
-//        .get
-//        .processAndChangeState(packet)
-//      debug(s"Sending packet ${writePacket} to device id: ${writePacket.deviceId}")
+    //      val writePacket: WritePacket = ServiceStore
+    //        .get(packet.getServiceAddress())
+    //        .get
+    //        .processAndChangeState(packet)
+    //      debug(s"Sending packet ${writePacket} to device id: ${writePacket.deviceId}")
 
-//      mqttManager ! Publish("/device/" + writePacket.deviceId + "/cmd", writePacket.toByteData)
+    //      mqttManager ! Publish("/device/" + writePacket.deviceId + "/cmd", writePacket.toByteData)
 
 
     case Message(topic, byteVector) =>
-      val TopicDeviceExtractor = "(\\/device\\/)([a-z|-]*)(\\/data)".r
       debug(s"Topic - ${topic}")
-      topic match {
-        case TopicDeviceExtractor(_, deviceId: String, _) =>
-          debug("Received a message from device: " + deviceId)
-          DiscoveryService.process(deviceId, byteVector)
-        case _ => debug("Unknown message received")
-      }
+      debug("Received a ReadResponse message from device: " + deviceId)
       debug("Received: " + byteVector)
     case x@_ =>
       debug(s"Unknown message received:${x}")
@@ -64,7 +57,6 @@ class MQTTPubSubProxy extends Actor with RetryConnect{
 
 object MQTTPubSubProxy {
 
-  sealed trait DATA
+  def props(deviceId: String) = Props(new MQTTPubSubProxy(deviceId))
 
-  sealed trait STATE
 }
