@@ -3,7 +3,7 @@ package com.supersaiyyans.actors
 import akka.actor.{Props, FSM}
 import ServicesRepoActor._
 
-class ServicesRepoActor extends FSM[RepoState,Data]{
+class ServicesRepoActor extends FSM[State,Data]{
 
   startWith(Running,ServicesData(Map.empty))
 
@@ -30,17 +30,14 @@ object ServicesRepoActor {
 
   def props = Props[ServicesRepoActor]
 
-  sealed trait RepoState
-  object Initializing extends RepoState
-  object Running extends RepoState
+  sealed trait State
+  object Initializing extends State
+  object Running extends State
 
   sealed trait Data
   sealed case class ServicesData(servicesData: Map[String,ServiceData]) extends Data
 
   trait ServiceState
-
-  case class SwitchServiceState(value: String)
-
   case class ServiceData(name: String,serviceId: String,deviceId: String,state: ServiceState)
 
   sealed trait SupportedEventsByRepo
