@@ -11,16 +11,16 @@ class ServicesRepoActor extends FSM[State,Data]{
     case Event(command: UpdateState,currentState: ServicesData) =>
       val newData =
         currentState
-          .servicesData
+          .data
           .updated(command.serviceData.serviceId,command.serviceData)
     stay using ServicesData(newData)
 
     case Event(FetchAll,currentState: ServicesData) =>
-      sender ! currentState.servicesData.values.toList
+      sender ! currentState.data.values.toList
       stay
 
     case Event(fetchData: FetchServiceData,currentState: ServicesData) =>
-      sender ! currentState.servicesData.get(fetchData.serviceId)
+      sender ! currentState.data.get(fetchData.serviceId)
       stay
   }
 
@@ -35,7 +35,7 @@ object ServicesRepoActor {
   object Running extends State
 
   sealed trait Data
-  sealed case class ServicesData(servicesData: Map[String,ServiceData]) extends Data
+  sealed case class ServicesData(data: Map[String,ServiceData]) extends Data
 
   trait ServiceState
   case class ServiceData(name: String,serviceId: String,deviceId: String,state: ServiceState)
