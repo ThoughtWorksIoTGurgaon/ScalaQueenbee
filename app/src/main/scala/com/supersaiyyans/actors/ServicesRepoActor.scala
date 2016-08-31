@@ -40,10 +40,10 @@ object ServicesRepoActor {
   trait ServiceState
   case class ServiceData(name: String,serviceId: String,deviceId: String,state: ServiceState)
 
-  sealed trait SupportedEvents
-  object FetchAll extends SupportedEvents
-  case class UpdateState(serviceData: ServiceData) extends SupportedEvents
-  case class FetchServiceData(serviceId: String) extends SupportedEvents
+  sealed trait SupportedEvent
+  object FetchAll extends SupportedEvent
+  case class UpdateState(serviceData: ServiceData) extends SupportedEvent
+  case class FetchServiceData(serviceId: String) extends SupportedEvent
 
 
 
