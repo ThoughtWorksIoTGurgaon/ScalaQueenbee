@@ -5,7 +5,7 @@ import akka.testkit.TestFSMRef
 import com.supersaiyyans.actors.ServicesRepoActor.Running
 import org.scalatest.{Matchers, FunSpec}
 
-class ServicesRepoActorTest extends FunSpec  with Matchers{
+class ServicesRepoActorTest extends FunSpec with Matchers {
 
 
   describe("ServiceActorRepo Spec") {
