@@ -8,12 +8,12 @@ class ServicesRepoActor extends FSM[State,Data]{
   startWith(Running,ServicesData(Map.empty))
 
   when(Running){
-    case Event(command: UpdateState,currentState: ServicesData) =>
+    case Event(command: UpdateState,oldData: ServicesData) =>
       val newData =
-        currentState
+        oldData
           .data
           .updated(command.serviceData.serviceId,command.serviceData)
-    stay using ServicesData(newData)
+      stay using ServicesData(newData)
 
     case Event(FetchAll,currentState: ServicesData) =>
       sender ! currentState.data.values.toList
