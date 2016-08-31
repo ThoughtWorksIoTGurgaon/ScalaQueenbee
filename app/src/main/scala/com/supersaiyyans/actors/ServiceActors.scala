@@ -31,7 +31,7 @@ object PacketTransformers {
 
 
 
-class SwitchServiceActor(deviceId: String, serviceId: String, switchData: SwitchServiceData, serviceRepoActor: ActorRef, )
+class SwitchServiceActor(deviceId: String, serviceId: String, switchData: SwitchServiceData, override val serviceRepoActor: ActorRef)
   extends ServiceActor {
 
   val mqttActorRef = context
