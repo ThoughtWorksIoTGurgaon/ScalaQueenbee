@@ -46,7 +46,6 @@ class MQTTDiscoveryActor extends Actor with RetryConnect with ProtocolDescriber 
   type ServiceInfo = (ProfileId, ServiceId)
 
   def extractServiceInfoList(byteVector: Vector[Byte]): List[ServiceInfo] = {
-    val serviceCount: Byte = byteVector(ServiceCountByteIndex)
     val services = customZip2(byteVector.toList.drop(ServiceCountByteIndex + 1))
     services
   }
