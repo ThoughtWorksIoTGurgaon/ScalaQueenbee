@@ -41,7 +41,7 @@ object ServicesRepoActor {
 
   case class SwitchServiceState(value: String)
 
-  case class ServiceData(name: String,val serviceId: String,deviceId: String,state: ServiceState)
+  case class ServiceData(name: String,serviceId: String,deviceId: String,state: ServiceState)
 
   sealed trait SupportedEventsByRepo
   case class UpdateState(serviceData: ServiceData) extends SupportedEventsByRepo
