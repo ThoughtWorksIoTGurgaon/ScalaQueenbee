@@ -25,7 +25,7 @@ class TheEnchantress(repoActor: ActorRef) extends FSM[State, Data] {
   startWith(Processing, EnchantressData(List.empty[ActorRef]))
 
   when(Processing) {
-    case Event(service: ServiceDiscovered, data: EnchantressData) =>
+    case Event(service: DiscoveredService, data: EnchantressData) =>
       implicit val askTimeout = Timeout(1 minute)
       debug(s"${self.path.name}: New Service Discovered!!!!")
       debug(s"New Service discovered with profile id: ${service.profileId}")
@@ -57,7 +57,7 @@ object TheEnchantress {
 
   sealed case class EnchantressData(serviceActors: List[ActorRef]) extends Data
 
-  case class ServiceDiscovered(deviceId: String, serviceId: String, profileId: String)
+  case class DiscoveredService(deviceId: String, serviceId: String, profileId: String)
 
 
   case class ProcessPacketFromUser(packet: Packet)

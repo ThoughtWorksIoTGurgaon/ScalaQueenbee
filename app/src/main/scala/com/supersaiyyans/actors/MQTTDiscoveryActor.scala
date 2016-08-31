@@ -6,7 +6,7 @@ import akka.actor.Actor.Receive
 import akka.actor.{Actor, Props}
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
 import com.supersaiyyans.actors.SupportedProtocolTypes.{MQTT, ProtocolType}
-import com.supersaiyyans.actors.TheEnchantress.ServiceDiscovered
+import com.supersaiyyans.actors.TheEnchantress.DiscoveredService
 import com.supersaiyyans.util.Logger._
 import com.typesafe.config.ConfigFactory
 import net.sigusr.mqtt.api._
@@ -89,7 +89,7 @@ class MQTTDiscoveryActor extends Actor with RetryConnect with ProtocolDescriber 
           debug("Received a message from device: " + deviceId)
           extractServiceInfoList(byteVector).foreach {
             case (profileId, serviceId) =>
-              enchantress ! ServiceDiscovered(deviceId, serviceId, profileId)
+              enchantress ! DiscoveredService(deviceId, serviceId, profileId)
           }
         case _ => debug("Unknown message received")
       }
