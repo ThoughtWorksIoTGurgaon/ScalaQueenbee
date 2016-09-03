@@ -1,25 +1,11 @@
 package com.supersaiyyans.actors
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import akka.testkit.{TestActorRef, TestFSMRef, TestKit}
+import akka.testkit.{ImplicitSender, TestActorRef, TestFSMRef, TestKit}
 import com.supersaiyyans.actors.ServicesRepoActor._
 import org.scalatest.{FunSpecLike, Matchers}
 
-case object SomeUnknownMessage
-
-class DummyActor(actorRef : ActorRef) extends Actor {
-
-  def sendUnexpectedMessage = actorRef ! SomeUnknownMessage
-
-  var recievedUnxpectedMessage = false
-
-  override def receive: Receive = {
-    case UnexpectedMessage => recievedUnxpectedMessage = true
-  }
-}
-
-
-class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers with FunSpecLike {
+class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers with FunSpecLike with ImplicitSender {
 
 
   describe("ServiceActorRepo Spec") {
@@ -62,13 +48,10 @@ class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers w
 
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
-      val ref: TestActorRef[DummyActor] = TestActorRef(Props(new DummyActor(serviceRepoActorRef)))
-      val actor: DummyActor = ref.underlyingActor
+      serviceRepoActorRef ! "Some Unknown Message"
 
-      actor.sendUnexpectedMessage
-
+      expectMsg(UnexpectedMessage)
       serviceRepoActorRef.stateName should be(Running)
-      actor.recievedUnxpectedMessage should be(true)
     }
 
 
