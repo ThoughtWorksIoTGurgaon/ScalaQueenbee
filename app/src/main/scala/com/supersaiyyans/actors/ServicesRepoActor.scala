@@ -7,6 +7,8 @@ class ServicesRepoActor extends FSM[State,Data]{
 
   startWith(Running,ServicesData(Map.empty))
 
+  // TODO - add exception for unexpected messages
+
   when(Running){
     case Event(command: UpdateServiceData,oldData: ServicesData) =>
       val newData =
@@ -22,6 +24,10 @@ class ServicesRepoActor extends FSM[State,Data]{
     case Event(fetchData: FetchServiceData,currentState: ServicesData) =>
       sender ! currentState.data.get(fetchData.serviceId)
       stay
+
+    case Event(newService : AddService, oldData : ServicesData) =>
+      val newData = oldData.data.updated(newService.serviceData.serviceId, newService.serviceData)
+      stay using ServicesData(newData)
   }
 
 }
@@ -43,6 +49,7 @@ object ServicesRepoActor {
 
   sealed trait SupportedEvent
   object FetchAll extends SupportedEvent
+  case class AddService(serviceData: ServiceData) extends SupportedEvent
   case class UpdateServiceData(serviceData: ServiceData) extends SupportedEvent
   case class FetchServiceData(serviceId: String) extends SupportedEvent
 
