@@ -8,16 +8,13 @@ trait Packet {
   val getDestinationAddress: String
 }
 
-
-trait BinaryPacket extends Packet {
-}
+trait BinaryPacket extends Packet
 
 case class WritePacket(deviceId: String, serviceId: Int, payload: Array[(Int, Array[Byte])], source: String) extends BinaryPacket {
 
   override val toByteData: Vector[Byte] = {
     (transformHeader ++ transformPayload).toVector
   }
-
 
   override val getServiceAddress = serviceId.toString
 
