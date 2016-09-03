@@ -42,9 +42,9 @@ object ServicesRepoActor {
 
   sealed trait State
 
-  object Initializing extends State
+  case object Initializing extends State
 
-  object Running extends State
+  case object Running extends State
 
   sealed trait Data
 
@@ -59,7 +59,7 @@ object ServicesRepoActor {
 
   sealed trait SupportedEvent
 
-  object FetchAll extends SupportedEvent
+  case object FetchAll extends SupportedEvent
 
   case class AddService(serviceData: ServiceData) extends SupportedEvent
 
@@ -67,7 +67,9 @@ object ServicesRepoActor {
 
   case class FetchServiceData(serviceId: String) extends SupportedEvent
 
-  case object UnexpectedMessage  // Todo : Make it more specific
+  case object UnexpectedMessage
+
+  // Todo : Make it more specific
 
 
 }
