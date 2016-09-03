@@ -29,9 +29,11 @@ class ServicesRepoActorTest extends FunSpec with Matchers {
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
       val data: ServiceData = ServiceData(name = "toggle bedroom light", serviceId = "SW101", deviceId = "DId101", state = SwitchServiceState("ON"))
-      serviceRepoActorRef ! UpdateState(data)
 
       serviceRepoActorRef.stateName should be(Running)
+      serviceRepoActorRef ! UpdateServiceData(data)
+      serviceRepoActorRef.stateName should be(Running) // Todo - figure out if there is a way to say "should stay same"
+
       serviceRepoActorRef.stateData should be(ServicesData(Map("SW101" -> data)))
     }
   }

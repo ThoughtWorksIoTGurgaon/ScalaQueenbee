@@ -77,7 +77,7 @@ object TheEnchantress {
 
   def ServiceActorDecider(profileId: ProfileType, deviceId: String, serviceId: String, repoActor: ActorRef, protocolType: ProtocolType)
                          (protocolActorDecider: (ProtocolType) => (String) => Props)
-                         (context: ActorContext) = {
+                         (context: ActorContext): ActorRef = {
 
     profileId match {
       case ProfileType.SwitchProfile =>

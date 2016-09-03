@@ -8,7 +8,7 @@ class ServicesRepoActor extends FSM[State,Data]{
   startWith(Running,ServicesData(Map.empty))
 
   when(Running){
-    case Event(command: UpdateState,oldData: ServicesData) =>
+    case Event(command: UpdateServiceData,oldData: ServicesData) =>
       val newData =
         oldData
           .data
@@ -43,7 +43,7 @@ object ServicesRepoActor {
 
   sealed trait SupportedEvent
   object FetchAll extends SupportedEvent
-  case class UpdateState(serviceData: ServiceData) extends SupportedEvent
+  case class UpdateServiceData(serviceData: ServiceData) extends SupportedEvent
   case class FetchServiceData(serviceId: String) extends SupportedEvent
 
 
