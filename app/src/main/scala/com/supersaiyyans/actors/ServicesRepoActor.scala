@@ -38,6 +38,7 @@ object ServicesRepoActor {
   sealed case class ServicesData(data: Map[String,ServiceData]) extends Data
 
   trait ServiceState
+  case class SwitchServiceState(value: String) extends ServiceState
   case class ServiceData(name: String,serviceId: String,deviceId: String,state: ServiceState)
 
   sealed trait SupportedEvent
