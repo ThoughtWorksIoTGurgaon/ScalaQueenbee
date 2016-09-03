@@ -67,5 +67,7 @@ object ServicesRepoActor {
 
   case class FetchServiceData(serviceId: String) extends SupportedEvent
 
+  case object UnexpectedMessage  // Todo : Make it more specific
+
 
 }

@@ -1,12 +1,10 @@
 package com.supersaiyyans.actors
 
-import akka.actor.Actor.Receive
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.testkit.{TestActorRef, TestFSMRef, TestKit}
 import com.supersaiyyans.actors.ServicesRepoActor._
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.{FunSpecLike, Matchers}
 
-case object UnexpectedMessage  // Todo : Make it more specific
 case object SomeUnknownMessage
 
 class DummyActor(actorRef : ActorRef) extends Actor {
@@ -21,13 +19,12 @@ class DummyActor(actorRef : ActorRef) extends Actor {
 }
 
 
-class ServicesRepoActorTest extends FunSpec with Matchers {
+class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers with FunSpecLike {
 
 
   describe("ServiceActorRepo Spec") {
 
     it("Should start actor with correct state") {
-      implicit val actorSystem = ActorSystem()
 
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
@@ -37,7 +34,7 @@ class ServicesRepoActorTest extends FunSpec with Matchers {
     }
 
     it("Should update state data and stay in same state") {
-      implicit val actorSystem = ActorSystem()
+      
 
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
@@ -51,7 +48,6 @@ class ServicesRepoActorTest extends FunSpec with Matchers {
     }
 
     it("Should add new state data and stay in same state") {
-      implicit val actorSystem = ActorSystem()
 
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
@@ -63,7 +59,6 @@ class ServicesRepoActorTest extends FunSpec with Matchers {
     }
 
     it("Should notify sender about unexpected message if the message is not received/present") {
-      implicit val actorSystem = ActorSystem()
 
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
