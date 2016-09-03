@@ -1,7 +1,7 @@
 package com.supersaiyyans.actors
 
 import akka.actor.ActorSystem
-import akka.testkit.TestFSMRef
+import akka.testkit.{TestFSMRef, TestKit}
 import com.supersaiyyans.actors.ServicesRepoActor._
 import org.scalatest.{FunSpec, Matchers}
 
@@ -19,9 +19,6 @@ class ServicesRepoActorTest extends FunSpec with Matchers {
       serviceRepoActorRef.stateData should be(ServicesData(Map()))
 
     }
-  }
-
-  describe("ServiceActorRepo Spec") {
 
     it("Should update state data and stay in same state") {
       implicit val actorSystem = ActorSystem()
@@ -36,6 +33,6 @@ class ServicesRepoActorTest extends FunSpec with Matchers {
 
       serviceRepoActorRef.stateData should be(ServicesData(Map("SW101" -> data)))
     }
-  }
 
+  }
 }
