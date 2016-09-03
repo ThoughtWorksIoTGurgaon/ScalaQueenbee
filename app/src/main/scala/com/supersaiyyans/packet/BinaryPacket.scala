@@ -18,7 +18,7 @@ case class WritePacket(deviceId: String, serviceId: Int, payload: Array[(Int, Ar
 
   override val getServiceAddress = serviceId.toString
 
-  def transformPayload: Array[Byte] = {
+  lazy val transformPayload: Array[Byte] = {
     payload.flatMap {
       case (characteristic, data) =>
         characteristic.toByte +:
@@ -27,7 +27,7 @@ case class WritePacket(deviceId: String, serviceId: Int, payload: Array[(Int, Ar
     }
   }
 
-  def transformHeader: Seq[Byte] = {
+  lazy val transformHeader: Seq[Byte] = {
     Seq(
       1 //version
       , 1 //Packet Type
