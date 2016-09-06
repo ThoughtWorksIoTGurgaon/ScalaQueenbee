@@ -5,15 +5,14 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
 import com.supersaiyyans.actors.ProfileType.ProfileType
+import com.supersaiyyans.actors.ServiceActors.SupportedProtocolTypes.ProtocolType
 import com.supersaiyyans.actors.ServiceActors.SwitchServiceData
-import com.supersaiyyans.actors.SupportedProtocolTypes._
 import com.supersaiyyans.actors.TheEnchantress._
 import com.supersaiyyans.packet.Packet
 import com.supersaiyyans.util.Logger._
-import src.main.scala.com.supersaiyyans.actors.MQTTPubSubProxy
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.duration._
 
 
 /*
@@ -32,7 +31,7 @@ class TheEnchantress(repoActor: ActorRef) extends FSM[State, Data] {
       sender.ask(WhichProtocol).mapTo[ProtocolType].map {
         protocol =>
           val switchServiceActor =
-            ServiceActorDecider(ProfileType.SwitchProfile, service.deviceId, service.serviceId, repoActor, protocol)(ProtocolActorDecider)(context)
+            ServiceActorDecider(ProfileType.SwitchProfile, service.deviceId, service.serviceId, repoActor, protocol)(context)
           self ! AddServiceActor(switchServiceActor)
       }
       stay
@@ -76,28 +75,25 @@ object TheEnchantress {
 
 
   def ServiceActorDecider(profileId: ProfileType, deviceId: String, serviceId: String, repoActor: ActorRef, protocolType: ProtocolType)
-                         (protocolActorDecider: (ProtocolType) => (String) => Props)
                          (context: ActorContext) = {
 
     profileId match {
       case ProfileType.SwitchProfile =>
-        val mqttPubSubProxyActor =
-          context.actorOf(protocolActorDecider(protocolType)(deviceId))
         context
           .actorOf(
             SwitchServiceActor.props(deviceId
               , serviceId
               , SwitchServiceData("OFF")
-              , mqttPubSubProxyActor))
+              , repoActor
+              , protocolType))
     }
   }
 
-  def ProtocolActorDecider: (ProtocolType) => (String) => Props = {
-    protocol =>
-      protocol match {
-        case _ => MQTTPubSubProxy.props _
-      }
-  }
+
+}
+
+object MQTTUtils {
+
 
 }
 

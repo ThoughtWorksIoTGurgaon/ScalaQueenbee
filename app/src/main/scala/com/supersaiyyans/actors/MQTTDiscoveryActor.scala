@@ -5,7 +5,7 @@ import java.net.{InetAddress, InetSocketAddress}
 import akka.actor.Actor.Receive
 import akka.actor.{Actor, Props}
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
-import com.supersaiyyans.actors.SupportedProtocolTypes.{MQTT, ProtocolType}
+import com.supersaiyyans.actors.ServiceActors.{MQTTActor, ProtocolDescriber}
 import com.supersaiyyans.actors.TheEnchantress.ServiceDiscovered
 import com.supersaiyyans.util.Logger._
 import com.typesafe.config.ConfigFactory
@@ -115,25 +115,5 @@ trait RetryConnect {
   } =>
 
   object TryConnect
-
-}
-
-trait ProtocolDescriber {
-  this: Actor =>
-  val myProtocol: ProtocolType
-}
-
-trait MQTTActor {
-  this: ProtocolDescriber =>
-  val myProtocol = MQTT
-
-}
-
-
-object SupportedProtocolTypes {
-
-  sealed trait ProtocolType
-
-  case object MQTT extends ProtocolType
 
 }
