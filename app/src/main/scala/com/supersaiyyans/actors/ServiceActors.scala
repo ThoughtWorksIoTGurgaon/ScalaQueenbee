@@ -1,83 +1,51 @@
 package com.supersaiyyans.actors
 
-import akka.actor.{ActorRef, FSM, Props}
-import com.supersaiyyans.actors.ServiceActors._
+import akka.actor.{Actor, ActorRef, Props}
+import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
 import com.supersaiyyans.packet._
-
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.duration._
-import com.supersaiyyans.util.Logger._
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.SwitchServiceData
 
 
+class SwitchServiceActor(override val deviceId: String, override val serviceId: String
+                                  , switchData: SwitchServiceData, override val serviceRepoActor: ActorRef, override val channelType: ChannelType)
+  extends ServiceActor{
 
-//TODO: FIX IMPORTS and fix message container fuckups!
-object PacketTransformers {
-
-
-  implicit class IJsonTransformer(jsonPacket: JsonCmdPacket) {
-
-    def transformToBinary(serviceId: String, deviceId: String)(implicit binaryTransformer: JsonCmdPacket => BinaryPacket) = {
-      binaryTransformer(jsonPacket)
-    }
+  def receive = {
+    case _ =>
   }
 
-  //  def transformJsonToBinaryPacket : JsonCmdPacket => WritePacket = {
-  //    jsonPacket=>
-  //      jsonPacket.cmd.toUpperCase match {
-  //        case "ON" => new WritePacket(deviceId, serviceId, Array(Tuple2(1,Array(2.toByte))))
-  //      }
-  //  }
 }
 
+trait JsonTranformer {
+  _: ServiceActor =>
+}
 
+trait ServiceActor extends Actor with RetryConnect with ChannelDecider{
+  val serviceRepoActor: ActorRef
+  val channelType: ChannelType
+  val deviceId: String
+  val serviceId: String
+  val channelActor: ActorRef
 
-class SwitchServiceActor(deviceId: String, serviceId: String, switchData: SwitchServiceData, override val serviceRepoActor: ActorRef)
-  extends ServiceActor {
+}
 
-  val mqttActorRef = context
+trait ChannelDecider {
+  _: ServiceActor =>
 
-  startWith(AwaitingDeviceConnect, switchData)
-
-  context.system.scheduler.scheduleOnce(2 minutes,self,TryConnect)
-  debug("")
-
-
-  when(AwaitingDeviceConnect) {
-    case Event(DeviceConnected, _) =>
-      goto(Started)
-    case Event(TryConnect, _) =>
-      context.system.scheduler.scheduleOnce(2 minutes,self,TryConnect)
-      stay
-  }
-
-  when(Started) {
-    case Event(cmdPacket: CommandPacket, _) =>
-      cmdPacket.packet match {
-        case jsonPacket: JsonCmdPacket =>
-          jsonPacket.cmd
+  override val channelActor = context.actorOf(ChannelDescriber(channelType))
+  def ChannelDescriber: (ChannelType) => Props = {
+    implicit channel =>
+      channel match {
+        case _ =>
+          Props(new MQTTPubSubProxySupervisorImpl(self, deviceId))
       }
-      goto(Started)
   }
-
-}
-
-object SwitchServiceActor {
-
-  def props(deviceId: String, serviceId: String, switchData: SwitchServiceData, serviceRepoActor: ActorRef) = {
-    Props(new SwitchServiceActor(deviceId, serviceId, switchData, serviceRepoActor))
-  }
-}
-
-trait ServiceActor extends FSM[State, Data] with RetryConnect{
-  def serviceRepoActor: ActorRef
 }
 
 
 object ServiceActors {
 
   sealed trait State
-
-  object AwaitingDeviceConnect extends State
 
   object Started extends State
 
@@ -87,12 +55,25 @@ object ServiceActors {
 
   case class SwitchServiceData(val value: String) extends ServiceData
 
-  sealed trait Command
-
-  sealed trait NotificationCommand
-
-  object DeviceConnected extends NotificationCommand
-
   class CommandPacket(val packet: JsonCmdPacket) extends Command
+
+  trait ProtocolDescriber {
+    this: Actor =>
+    val myProtocol: ChannelType
+  }
+
+  trait MQTTActor {
+    this: ProtocolDescriber =>
+    val myProtocol = MQTT
+
+  }
+
+  object SupportedChannelTypes {
+
+    trait ChannelType
+
+    case object MQTT extends ChannelType
+
+  }
 
 }

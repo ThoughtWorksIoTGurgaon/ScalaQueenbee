@@ -3,10 +3,11 @@ package com.supersaiyyans.actors
 import java.net.{InetAddress, InetSocketAddress}
 
 import akka.actor.Actor.Receive
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
-import com.supersaiyyans.actors.SupportedProtocolTypes.{MQTT, ProtocolType}
 import com.supersaiyyans.actors.TheEnchantress.DiscoveredService
+import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
+import com.supersaiyyans.actors.ServiceActors.{MQTTActor, ProtocolDescriber, SupportedChannelTypes}
 import com.supersaiyyans.util.Logger._
 import com.typesafe.config.ConfigFactory
 import net.sigusr.mqtt.api._
@@ -22,7 +23,7 @@ TODO:
 3.Supervisor Strategy
  */
 
-class MQTTDiscoveryActor extends Actor with RetryConnect with ProtocolDescriber with MQTTActor {
+class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends ServiceActor with ProtocolDescriber with MQTTActor {
 
   import net.ceedubs.ficus.Ficus._
 
@@ -99,6 +100,11 @@ class MQTTDiscoveryActor extends Actor with RetryConnect with ProtocolDescriber 
     case x@_ =>
       debug(s"Unknown message received:${x}")
   }
+
+
+  override val serviceId: String = "0"
+  override val channelType: ChannelType = MQTT
+  override val deviceId: String = "0"
 }
 
 object MQTTDiscoveryActor {
@@ -114,25 +120,5 @@ trait RetryConnect {
   } =>
 
   object TryConnect
-
-}
-
-trait ProtocolDescriber {
-  this: Actor =>
-  val myProtocol: ProtocolType
-}
-
-trait MQTTActor {
-  this: ProtocolDescriber =>
-  val myProtocol = MQTT
-
-}
-
-
-object SupportedProtocolTypes {
-
-  sealed trait ProtocolType
-
-  case object MQTT extends ProtocolType
 
 }

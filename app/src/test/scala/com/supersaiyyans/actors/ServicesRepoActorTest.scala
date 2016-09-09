@@ -16,7 +16,6 @@ class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers w
 
       serviceRepoActorRef.stateName should be(Running)
       serviceRepoActorRef.stateData should be(ServicesData(Map()))
-
     }
 
     it("Should update state data and stay in same state") {
