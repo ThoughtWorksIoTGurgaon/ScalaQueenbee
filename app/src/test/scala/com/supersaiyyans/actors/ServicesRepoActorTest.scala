@@ -12,9 +12,7 @@ class ServicesRepoActorTest extends FunSpec  with Matchers{
 
     it("Should start actor with correct state") {
       implicit val actorSystem = ActorSystem()
-
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
-
       serviceRepoActorRef.stateName.shouldBe(Running)
 
     }

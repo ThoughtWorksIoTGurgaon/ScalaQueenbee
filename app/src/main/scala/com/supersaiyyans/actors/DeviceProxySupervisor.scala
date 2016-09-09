@@ -3,6 +3,7 @@ package com.supersaiyyans.actors
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor._
 import com.supersaiyyans.actors.DeviceProxySupervisor._
+
 import scala.concurrent.duration._
 
 
@@ -29,41 +30,38 @@ abstract class DeviceProxySupervisor extends FSM[State, Data] {
   val deviceProxy: ActorRef
 
   when(Disconnected) {
-    Function.unlift (
-      onDeviceConnect andThen (
-        data =>
-          Some(goto(Connected).using(data))
-        )
-    ) orElse {
+    onDeviceConnect.andThen {
+      data =>
+        goto(Connected).using(data)
+    } orElse {
       case Event(someMessage, QueuedMessages(messages)) =>
         stay using QueuedMessages(messages :+ someMessage)
     }
   }
 
   when(Connected) {
-    Function.unlift(
-      onDeviceDisconnect.andThen(
-        data =>
-          Some(goto(Disconnected).using(QueuedMessages(Nil)))
-      )) orElse {
-      Function.unlift(onMessageReceivedFromDevice.andThen {
+    onDeviceDisconnect.andThen { data =>
+      goto(Disconnected)
+    } orElse {
+      onMessageReceivedFromDevice.andThen {
         messageFromDevice =>
           deviceListener ! messageFromDevice
-          Some(stay.using(QueuedMessages(Nil)))
-      }) orElse {
+          stay.using(QueuedMessages(Nil))
+      } orElse {
         case Event(someMessage: Any, _: Any) =>
           stay using QueuedMessages(Nil)
       }
     }
-
   }
+
+
 
   onTransition {
     case Disconnected -> Connected =>
       stateData match {
         case QueuedMessages(messages) =>
           messages.foreach {
-            deviceProxy ! _
+            self ! _
           }
       }
 

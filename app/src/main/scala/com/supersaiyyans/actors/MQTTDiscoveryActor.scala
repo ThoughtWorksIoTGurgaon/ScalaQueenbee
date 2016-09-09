@@ -3,9 +3,10 @@ package com.supersaiyyans.actors
 import java.net.{InetAddress, InetSocketAddress}
 
 import akka.actor.Actor.Receive
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
-import com.supersaiyyans.actors.ServiceActors.{MQTTActor, ProtocolDescriber}
+import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
+import com.supersaiyyans.actors.ServiceActors.{MQTTActor, ProtocolDescriber, SupportedChannelTypes}
 import com.supersaiyyans.actors.TheEnchantress.ServiceDiscovered
 import com.supersaiyyans.util.Logger._
 import com.typesafe.config.ConfigFactory
@@ -22,7 +23,7 @@ TODO:
 3.Supervisor Strategy
  */
 
-class MQTTDiscoveryActor extends Actor with RetryConnect with ProtocolDescriber with MQTTActor {
+class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends ServiceActor with ProtocolDescriber with MQTTActor {
 
   import net.ceedubs.ficus.Ficus._
 
@@ -100,6 +101,11 @@ class MQTTDiscoveryActor extends Actor with RetryConnect with ProtocolDescriber 
     case x@_ =>
       debug(s"Unknown message received:${x}")
   }
+
+
+  override val serviceId: String = "0"
+  override val channelType: ChannelType = MQTT
+  override val deviceId: String = "0"
 }
 
 object MQTTDiscoveryActor {
