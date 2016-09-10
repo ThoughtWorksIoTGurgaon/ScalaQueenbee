@@ -1,7 +1,7 @@
 package com.supersaiyyans.actors
 
 import akka.testkit.{TestFSMRef, TestKit}
-import com.supersaiyyans.actors.TheEnchantress.{AddServiceActor, EnchantressData, ServiceDiscovered}
+import com.supersaiyyans.actors.TheEnchantress.{AddServiceActor, DiscoveredService, EnchantressData}
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import org.scalatest.{FunSpecLike, Matchers}
@@ -22,7 +22,7 @@ class EnchantressTest extends TestKit(ActorSystem("TheEnchantressTest")) with Ma
     }
 
     it("Should create a new Switch Service Actor for a newly discovered service") {
-      enchantressTestActor ! ServiceDiscovered("someDeviceId", "someServiceId","1")
+      enchantressTestActor ! DiscoveredService("someDeviceId", "someServiceId","1")
       enchantressTestActor.stateData match {
         case EnchantressData(x) =>
           x.size shouldBe(1)

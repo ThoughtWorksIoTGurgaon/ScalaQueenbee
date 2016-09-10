@@ -3,7 +3,8 @@ package com.supersaiyyans.actors
 import java.net.{InetAddress, InetSocketAddress}
 
 import akka.actor.Actor.Receive
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.event.LoggingReceive
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
 import com.supersaiyyans.actors.TheEnchantress.DiscoveredService
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
@@ -23,7 +24,7 @@ TODO:
 3.Supervisor Strategy
  */
 
-class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends ServiceActor with ProtocolDescriber with MQTTActor {
+class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends ServiceActor with ProtocolDescriber with MQTTActor with ActorLogging{
 
   import net.ceedubs.ficus.Ficus._
 
@@ -65,10 +66,9 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
 
   def receive = initializing
 
-  def initializing: Receive = {
+  def initializing: LoggingReceive = {
 
     case TryConnect =>
-      debug("-----------------RECEIVED TryConnect--------------")
       mqttManager ! Connect("QUEENBEE_MQTT_DISCOVERY_ACTOR_CONNECTING")
       scheduler.scheduleOnce(5 minutes, self, TryConnect)
     case Connected =>
@@ -77,7 +77,7 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
       context become ready
   }
 
-  def ready: Receive = {
+  def ready: LoggingReceive = {
     case Disconnected | ConnectionFailure =>
       scheduler.scheduleOnce(5 minutes, self, TryConnect)
       context become initializing

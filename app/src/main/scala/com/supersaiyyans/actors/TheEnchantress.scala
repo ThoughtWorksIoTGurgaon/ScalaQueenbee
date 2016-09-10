@@ -18,7 +18,7 @@ import scala.concurrent.duration._
 /*
 TODO: Support multi service discovery
  */
-class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extends FSM[State,Data] {
+class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extends FSM[State,Data] with LoggingFSM[State,Data  ] {
 
   startWith(Processing, EnchantressData(List.empty[ActorRef]))
 
@@ -57,8 +57,6 @@ object TheEnchantress {
   sealed case class EnchantressData(serviceActors: Seq[ActorRef]) extends Data
 
   case class DiscoveredService(deviceId: String, serviceId: String, profileId: String)
-
-  case class ServiceDiscovered(deviceId: String, serviceId: String, profileId: String)
 
   case class ProcessPacketFromUser(packet: Packet)
 
