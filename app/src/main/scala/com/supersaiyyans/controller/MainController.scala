@@ -17,7 +17,7 @@ object MainController extends Controller {
 
   import play.api.Play.current
 
-  val repoActor = Akka.system.actorOf(ServicesRepoActor.props)
+  val repoActor = Akka.system.actorOf(ServicesRepoActor.props, "RepoActor")
 
   val enchantress = Akka.system.actorOf(TheEnchantressSupervisor.props(repoActor))
 
