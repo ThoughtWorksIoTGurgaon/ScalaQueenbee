@@ -2,6 +2,7 @@ package com.supersaiyyans.actors
 
 import akka.actor.{ActorLogging, FSM, Props}
 import ServicesRepoActor._
+import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
 class ServicesRepoActor extends FSM[State, Data] with ActorLogging {
 
@@ -14,7 +15,7 @@ class ServicesRepoActor extends FSM[State, Data] with ActorLogging {
       val newData =
         oldData
           .data
-          .updated(command.serviceData.serviceId, command.serviceData)
+          .updated(command.assignedServiceId, command.serviceData)
       stay using ServicesData(newData)
 
     case Event(FetchAll, currentState: ServicesData) =>
@@ -22,11 +23,11 @@ class ServicesRepoActor extends FSM[State, Data] with ActorLogging {
       stay
 
     case Event(fetchData: FetchServiceData, currentState: ServicesData) =>
-      sender ! currentState.data.get(fetchData.serviceId)
+      sender ! currentState.data.get(fetchData.assignedServiceId)
       stay
 
     case Event(newService: AddService, oldData: ServicesData) =>
-      val newData = oldData.data.updated(newService.serviceData.serviceId, newService.serviceData)
+      val newData = oldData.data + ((newService.assignedServiceId, newService.serviceData))
       stay using ServicesData(newData)
 
     case _ => log.error("Unexpected message found")
@@ -48,7 +49,7 @@ object ServicesRepoActor {
 
   sealed trait Data
 
-  sealed case class ServicesData(data: Map[String, ServiceData]) extends Data
+  sealed case class ServicesData(data: Map[AssignedServiceId, ServiceData]) extends Data
 
   trait ServiceState
 
@@ -61,11 +62,11 @@ object ServicesRepoActor {
 
   case object FetchAll extends SupportedEvent
 
-  case class AddService(serviceData: ServiceData) extends SupportedEvent
+  case class AddService(assignedServiceId: AssignedServiceId, serviceData: ServiceData) extends SupportedEvent
 
-  case class UpdateServiceData(serviceData: ServiceData) extends SupportedEvent
+  case class UpdateServiceData(assignedServiceId: AssignedServiceId, serviceData: ServiceData) extends SupportedEvent
 
-  case class FetchServiceData(serviceId: String) extends SupportedEvent
+  case class FetchServiceData(assignedServiceId: AssignedServiceId) extends SupportedEvent
 
   case object UnexpectedMessage
 

@@ -1,5 +1,7 @@
 package com.supersaiyyans.actors
 
+import java.util.UUID
+
 import akka.testkit.{TestFSMRef, TestKit}
 import com.supersaiyyans.actors.TheEnchantress.{AddServiceActor, DiscoveredService, EnchantressData}
 import akka.actor.ActorSystem
@@ -17,8 +19,9 @@ class EnchantressTest extends TestKit(ActorSystem("TheEnchantressTest")) with Ma
     it("Should be able to add new services") {
       val newServiceActor = TestProbe().testActor
 
-      enchantressTestActor ! AddServiceActor(newServiceActor)
-      enchantressTestActor.stateData.shouldBe(EnchantressData(Seq(newServiceActor)))
+      val uuid = UUID.randomUUID()
+      enchantressTestActor ! AddServiceActor(uuid, newServiceActor)
+      enchantressTestActor.stateData.shouldBe(EnchantressData(Map(uuid->newServiceActor)))
     }
 
     it("Should create a new Switch Service Actor for a newly discovered service") {

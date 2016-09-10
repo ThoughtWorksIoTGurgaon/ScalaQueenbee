@@ -6,14 +6,20 @@ import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType
 import com.supersaiyyans.packet._
 import com.supersaiyyans.util.Logger
 import src.main.scala.com.supersaiyyans.actors.CommonMessages.SwitchServiceData
+import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
 
-class SwitchServiceActor(override val deviceId: String, override val serviceId: String
+class SwitchServiceActor(override val assignedServiceId: AssignedServiceId, override val deviceId: String, override val serviceId: String
                                   , switchData: SwitchServiceData, override val serviceRepoActor: ActorRef, override val channelType: ChannelType)
   extends ServiceActor with ActorLogging{
 
   def receive = LoggingReceive{
     case _ =>
+  }
+
+  override def preStart(): Unit = {
+    serviceRepoActor ! (assignedServiceId, switchData)
+    super.preStart()
   }
 
 }
@@ -23,6 +29,8 @@ trait JsonTranformer {
 }
 
 trait ServiceActor extends Actor with RetryConnect with ChannelDecider{
+
+  val assignedServiceId: AssignedServiceId
   val serviceRepoActor: ActorRef
   val channelType: ChannelType
   val deviceId: String

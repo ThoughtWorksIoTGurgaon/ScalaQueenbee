@@ -27,8 +27,6 @@ object MainController extends Controller {
         jsonRequest =>
           Ok(jsonRequest.toString).withHeaders("Access-Control-Allow-Origin" -> "*")
       }.recoverTotal(e => BadRequest)
-
-
   }
 
   def option(path: String) = Action {
