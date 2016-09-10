@@ -19,7 +19,7 @@ object MainController extends Controller {
 
   val repoActor = Akka.system.actorOf(ServicesRepoActor.props, "RepoActor")
 
-  val enchantress = Akka.system.actorOf(TheEnchantressSupervisor.props(repoActor))
+  val enchantressSupervisor = Akka.system.actorOf(TheEnchantressSupervisor.props(repoActor),"EnchantressSupervisor")
 
   def serviceCommand = Action(parse.json) {
     request =>
