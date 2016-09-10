@@ -8,6 +8,7 @@ import com.supersaiyyans.actors.ProfileType.ProfileType
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.ChannelType
 import com.supersaiyyans.actors.TheEnchantress._
 import com.supersaiyyans.packet.Packet
+import com.supersaiyyans.util.Logger
 import com.supersaiyyans.util.Logger._
 import src.main.scala.com.supersaiyyans.actors.CommonMessages.SwitchServiceData
 
@@ -18,20 +19,19 @@ import scala.concurrent.duration._
 /*
 TODO: Support multi service discovery
  */
-class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extends FSM[State,Data] with LoggingFSM[State,Data  ] {
+class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extends FSM[State,Data] with LoggingFSM[State,Data] {
 
   startWith(Processing, EnchantressData(List.empty[ActorRef]))
 
-  when(Processing) {
+  when(Processing)  {
     case Event(service: DiscoveredService, data: EnchantressData) =>
       implicit val askTimeout = Timeout(1 minute)
       debug(s"${self.path.name}: New Service Discovered!!!!")
       debug(s"New Service discovered with profile id: ${service.profileId}")
       sender.ask(WhichProtocol).mapTo[ChannelType].map {
         protocol =>
-          val switchServiceActor =
-            ServiceActorDecider(ProfileType.SwitchProfile, service.deviceId, service.serviceId, repoActor, protocol)(context)
-          self ! AddServiceActor(switchServiceActor)
+            ServiceActorDecider(ProfileType(service.profileId.toInt)
+              , service.deviceId, service.serviceId, repoActor, protocol)(context)
       }
       stay
 
@@ -41,7 +41,28 @@ class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extend
     case Event(Terminated(message), data) =>
       debug(s"RepoActor is down,enchantress wont work properly: ${message}")
       stay
+
+    case msg@_=>
+      debug(s"Enchantress received unknown message!")
+      stay
   }
+
+  def ServiceActorDecider(profileId: ProfileType, deviceId: String, serviceId: String, repoActor: ActorRef, protocolType: ChannelType)
+                         (context: ActorContext) = {
+
+    profileId match {
+      case ProfileType.SwitchProfile =>
+
+        self ! AddServiceActor(context
+          .actorOf(
+            Props(new SwitchServiceActor(deviceId
+              , serviceId
+              , SwitchServiceData("OFF")
+              , repoActor
+              , protocolType))))
+    }
+  }
+
 
 }
 
@@ -72,23 +93,6 @@ object TheEnchantress {
 
   case class ServiceData(name: String, val serviceId: String, deviceId: String, state: ServiceState)
 
-
-  def ServiceActorDecider(profileId: ProfileType, deviceId: String, serviceId: String, repoActor: ActorRef, protocolType: ChannelType)
-                         (context: ActorContext): ActorRef = {
-
-    profileId match {
-      case ProfileType.SwitchProfile =>
-        context
-          .actorOf(
-            Props(new SwitchServiceActor(deviceId
-              , serviceId
-              , SwitchServiceData("OFF")
-              , repoActor
-              , protocolType)))
-    }
-  }
-
-
 }
 
 object MQTTUtils {
@@ -96,7 +100,7 @@ object MQTTUtils {
 
 }
 
-object ProfileType extends Enumeration {
+object ProfileType extends Enumeration(initial = 1) {
   type ProfileType = Value
   val DiscoveryProfile, SwitchProfile = Value
 }

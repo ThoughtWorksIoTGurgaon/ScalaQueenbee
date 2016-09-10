@@ -1,16 +1,18 @@
 package com.supersaiyyans.actors
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.event.LoggingReceive
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
 import com.supersaiyyans.packet._
+import com.supersaiyyans.util.Logger
 import src.main.scala.com.supersaiyyans.actors.CommonMessages.SwitchServiceData
 
 
 class SwitchServiceActor(override val deviceId: String, override val serviceId: String
                                   , switchData: SwitchServiceData, override val serviceRepoActor: ActorRef, override val channelType: ChannelType)
-  extends ServiceActor{
+  extends ServiceActor with ActorLogging{
 
-  def receive = {
+  def receive = LoggingReceive{
     case _ =>
   }
 
@@ -26,6 +28,14 @@ trait ServiceActor extends Actor with RetryConnect with ChannelDecider{
   val deviceId: String
   val serviceId: String
   val channelActor: ActorRef
+
+  override def preStart(): Unit = {
+    Logger.debugWithArgs("Starting new service actor",
+      List(
+        ("serviceId:",serviceId)
+        ,("deviceId",deviceId)
+        ,("channelType",channelType.toString)): _*)
+  }
 
 }
 

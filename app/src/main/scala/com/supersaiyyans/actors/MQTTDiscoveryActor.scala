@@ -24,7 +24,7 @@ TODO:
 3.Supervisor Strategy
  */
 
-class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends ServiceActor with ProtocolDescriber with MQTTActor with ActorLogging{
+class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor with RetryConnect with ActorLogging{
 
   import net.ceedubs.ficus.Ficus._
 
@@ -40,7 +40,7 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
 
 
   debugWithArgs("Starting MQTT Discovery Actor with args", Seq("MQTTHOST" -> MQTTHOST, "MQTTPORT" -> MQTTPORT.toString): _*)
-  scheduler.scheduleOnce(1 minutes, self, TryConnect)
+  scheduler.scheduleOnce(0 minutes, self, TryConnect)
 
 
   type ProfileId = String
@@ -48,7 +48,8 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
   type ServiceInfo = (ProfileId, ServiceId)
 
   def extractServiceInfoList(byteVector: Vector[Byte]): List[ServiceInfo] = {
-    val services = customZip2(byteVector.toList.drop(ServiceCountByteIndex + 1))
+    val services = customZip2(byteVector.toList.drop(ServiceCountByteIndex))
+    debugWithArgs("Got services with profile and service id",services : _*)
     services
   }
 
@@ -66,7 +67,7 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
 
   def receive = initializing
 
-  def initializing: LoggingReceive = {
+  def initializing: Receive = LoggingReceive{
 
     case TryConnect =>
       mqttManager ! Connect("QUEENBEE_MQTT_DISCOVERY_ACTOR_CONNECTING")
@@ -74,13 +75,14 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
     case Connected =>
       debug("-------------------Discovery Actor Connected--------------------")
       mqttManager ! Subscribe(Vector((subscribeTopic, AtMostOnce)), MessageId(10))
-      context become ready
+      context.become(ready)
   }
 
-  def ready: LoggingReceive = {
+  def ready: Receive = LoggingReceive{
+
     case Disconnected | ConnectionFailure =>
       scheduler.scheduleOnce(5 minutes, self, TryConnect)
-      context become initializing
+      context.become(initializing)
 
     case Message(topic, byteVector) =>
       val TopicDeviceExtractor = "(\\/device\\/)([a-z|-]*)(\\/data)".r
@@ -101,15 +103,11 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
       debug(s"Unknown message received:${x}")
   }
 
-
-  override val serviceId: String = "0"
-  override val channelType: ChannelType = MQTT
-  override val deviceId: String = "0"
 }
 
 object MQTTDiscoveryActor {
   object WhichProtocol
-  def props(serviceRepo: ActorRef) = Props(new MQTTDiscoveryActor(serviceRepo))
+  def props() = Props(new MQTTDiscoveryActor())
 }
 
 

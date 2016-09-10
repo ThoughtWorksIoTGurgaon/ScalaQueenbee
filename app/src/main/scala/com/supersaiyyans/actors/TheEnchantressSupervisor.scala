@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, Actor, Props}
 
 class TheEnchantressSupervisor(repoActor: ActorRef) extends Actor{
 
-  val mqttDiscoveryActor = context.actorOf(MQTTDiscoveryActor.props(repoActor))
+  val mqttDiscoveryActor = context.actorOf(MQTTDiscoveryActor.props())
   val theEncantressActor = context.actorOf(TheEnchantress.props(repoActor, List(mqttDiscoveryActor)),"Enchantressssss")
 
   def receive = {
