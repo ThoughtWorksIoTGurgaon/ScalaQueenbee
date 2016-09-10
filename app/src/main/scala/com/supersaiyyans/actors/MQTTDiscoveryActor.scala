@@ -109,7 +109,7 @@ class MQTTDiscoveryActor(override val serviceRepoActor: ActorRef) extends Servic
 
 object MQTTDiscoveryActor {
   object WhichProtocol
-  def props = Props[MQTTDiscoveryActor]
+  def props(serviceRepo: ActorRef) = Props(new MQTTDiscoveryActor(serviceRepo))
 }
 
 

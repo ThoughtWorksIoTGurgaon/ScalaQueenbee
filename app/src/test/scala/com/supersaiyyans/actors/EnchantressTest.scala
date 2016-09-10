@@ -12,7 +12,7 @@ class EnchantressTest extends TestKit(ActorSystem("TheEnchantressTest")) with Ma
 
   describe("An enchantress test setup") {
     val repoActorProbe = TestProbe()
-    val enchantressTestActor = TestFSMRef(new TheEnchantress(repoActorProbe.testActor))
+    val enchantressTestActor = TestFSMRef(new TheEnchantress(repoActorProbe.testActor, List.empty))
 
     it("Should be able to add new services") {
       val newServiceActor = TestProbe().testActor

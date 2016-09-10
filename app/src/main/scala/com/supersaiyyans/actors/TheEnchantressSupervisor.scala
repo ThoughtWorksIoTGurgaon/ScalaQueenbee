@@ -4,7 +4,8 @@ import akka.actor.{ActorRef, Actor, Props}
 
 class TheEnchantressSupervisor(repoActor: ActorRef) extends Actor{
 
-  val theEncantressActor = context.actorOf(TheEnchantress.props(repoActor),"Enchantressssss")
+  val mqttDiscoveryActor = context.actorOf(MQTTDiscoveryActor.props(repoActor))
+  val theEncantressActor = context.actorOf(TheEnchantress.props(repoActor, List(mqttDiscoveryActor)),"Enchantressssss")
 
   def receive = {
     case allMessages@_ => theEncantressActor forward allMessages

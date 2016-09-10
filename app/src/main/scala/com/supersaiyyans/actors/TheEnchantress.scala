@@ -18,10 +18,7 @@ import scala.concurrent.duration._
 /*
 TODO: Support multi service discovery
  */
-class TheEnchantress(repoActor: ActorRef) extends FSM[State,Data] {
-
-
-
+class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extends FSM[State,Data] {
 
   startWith(Processing, EnchantressData(List.empty[ActorRef]))
 
@@ -67,7 +64,7 @@ object TheEnchantress {
 
   case class ProcessSystemPacket(packet: Packet)
 
-  def props(repoActor: ActorRef) = Props(new TheEnchantress(repoActor))
+  def props(repoActor: ActorRef, discoveryActors: List[ActorRef]) = Props(new TheEnchantress(repoActor, discoveryActors))
 
   trait ServiceState
 
