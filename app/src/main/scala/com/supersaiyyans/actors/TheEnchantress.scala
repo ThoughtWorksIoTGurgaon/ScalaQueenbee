@@ -36,8 +36,8 @@ class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) exten
       debug(s"New Service discovered with profile id: ${service.profileId}")
       sender.ask(WhichProtocol).mapTo[ChannelType].map {
         protocol =>
-          ServiceActorDecider(UUID.randomUUID(), ProfileType(service.profileId.toInt)
-            , service.deviceId, service.serviceId, repoActor, protocol)(context)
+          ServiceActorDecider((service.deviceId + service.serviceId).hashCode, ProfileType(service.profileId.toInt)
+            , service.deviceId, service.serviceId, repoActor, protocol, data.serviceActors)(context)
 
       }
       stay
@@ -56,19 +56,20 @@ class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) exten
       stay
   }
 
-  def ServiceActorDecider(assignedServiceId: AssignedServiceId, profileId: ProfileType, deviceId: String, serviceId: String, repoActor: ActorRef, protocolType: ChannelType)
+  def ServiceActorDecider(assignedServiceId: AssignedServiceId, profileId: ProfileType, deviceId: String, serviceId: String, repoActor: ActorRef, protocolType: ChannelType, mapOfExistingActors: Map[AssignedServiceId, ActorRef])
                          (context: ActorContext) = {
-
-    profileId match {
-      case ProfileType.SwitchProfile =>
-        self ! AddServiceActor(assignedServiceId,
-          context.actorOf(Props(new SwitchServiceActor(
-            assignedServiceId
-            , deviceId
-            , serviceId
-            , SwitchServiceData("OFF")
-            , repoActor
-            , protocolType))))
+    if(!mapOfExistingActors.keys.exists(_ == assignedServiceId)){
+      profileId match {
+        case ProfileType.SwitchProfile =>
+          self ! AddServiceActor(assignedServiceId,
+            context.actorOf(Props(new SwitchServiceActor(
+              assignedServiceId
+              , deviceId
+              , serviceId
+              , SwitchServiceData("OFF")
+              , repoActor
+              , protocolType))))
+      }
     }
   }
 

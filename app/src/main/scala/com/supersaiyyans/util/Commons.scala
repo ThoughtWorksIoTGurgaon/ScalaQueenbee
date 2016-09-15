@@ -5,7 +5,7 @@ import java.util.UUID
 object Commons {
 
 
-  type AssignedServiceId = UUID
+  type AssignedServiceId = Int
 
   object ServiceProfiles extends Enumeration {
     type ServiceProfiles = Value
