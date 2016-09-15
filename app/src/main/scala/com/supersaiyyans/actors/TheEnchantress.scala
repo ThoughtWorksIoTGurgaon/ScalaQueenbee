@@ -24,20 +24,20 @@ import scala.concurrent.duration._
 /*
 TODO: Support multi service discovery
  */
-class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extends FSM[State,Data] with LoggingFSM[State,Data] {
+class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) extends FSM[State, Data] with LoggingFSM[State, Data] {
 
 
   startWith(Processing, EnchantressData(Map.empty[AssignedServiceId, ActorRef]))
 
-  when(Processing)  {
+  when(Processing) {
     case Event(service: DiscoveredService, data: EnchantressData) =>
       implicit val askTimeout = Timeout(1 minute)
       debug(s"${self.path.name}: New Service Discovered!!!!")
       debug(s"New Service discovered with profile id: ${service.profileId}")
       sender.ask(WhichProtocol).mapTo[ChannelType].map {
         protocol =>
-            ServiceActorDecider(UUID.randomUUID(), ProfileType(service.profileId.toInt)
-              , service.deviceId, service.serviceId, repoActor, protocol)(context)
+          ServiceActorDecider(UUID.randomUUID(), ProfileType(service.profileId.toInt)
+            , service.deviceId, service.serviceId, repoActor, protocol)(context)
 
       }
       stay
@@ -51,7 +51,7 @@ class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extend
       debug(s"RepoActor is down,enchantress wont work properly: ${message}")
       stay
 
-    case msg@_=>
+    case msg@_ =>
       debug(s"Enchantress received unknown message!")
       stay
   }
@@ -64,11 +64,11 @@ class TheEnchantress(repoActor: ActorRef,discoveryActors: List[ActorRef]) extend
         self ! AddServiceActor(assignedServiceId,
           context.actorOf(Props(new SwitchServiceActor(
             assignedServiceId
-              ,deviceId
-              , serviceId
-              , SwitchServiceData("OFF")
-              , repoActor
-              , protocolType))))
+            , deviceId
+            , serviceId
+            , SwitchServiceData("OFF")
+            , repoActor
+            , protocolType))))
     }
   }
 
