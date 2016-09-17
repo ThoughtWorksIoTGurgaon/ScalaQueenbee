@@ -1,7 +1,8 @@
 package com.supersaiyyans.actors
 
 import akka.actor.{ActorLogging, FSM, Props}
-import ServicesRepoActor._
+import com.supersaiyyans.actors.ServicesRepoActor._
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
 import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
 class ServicesRepoActor extends FSM[State, Data] with ActorLogging {
@@ -51,12 +52,6 @@ object ServicesRepoActor {
 
   sealed case class ServicesData(data: Map[AssignedServiceId, ServiceData]) extends Data
 
-  trait ServiceState
-
-  case class SwitchServiceState(value: String) extends ServiceState
-
-  // TODO : Enchantress and this should probably use the same thing
-  case class ServiceData(name: String, serviceId: String, deviceId: String, state: ServiceState)
 
   sealed trait SupportedEvent
 

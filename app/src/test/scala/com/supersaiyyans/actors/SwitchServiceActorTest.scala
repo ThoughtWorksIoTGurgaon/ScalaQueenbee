@@ -3,7 +3,6 @@ package scala.com.supersaiyyans.actors
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.testkit.{TestFSMRef, TestKit, TestProbe}
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.MQTT
-import com.supersaiyyans.actors.ServiceActors.SwitchServiceData
 import com.supersaiyyans.actors.{ServiceActor, SwitchServiceActor}
 import org.scalatest.{FunSpecLike, Matchers}
 

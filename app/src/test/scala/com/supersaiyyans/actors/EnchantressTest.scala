@@ -7,6 +7,7 @@ import com.supersaiyyans.actors.TheEnchantress.{AddServiceActor, DiscoveredServi
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import org.scalatest.{FunSpecLike, Matchers}
+import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
 
 class EnchantressTest extends TestKit(ActorSystem("TheEnchantressTest")) with Matchers with FunSpecLike {
@@ -19,7 +20,7 @@ class EnchantressTest extends TestKit(ActorSystem("TheEnchantressTest")) with Ma
     it("Should be able to add new services") {
       val newServiceActor = TestProbe().testActor
 
-      val uuid = UUID.randomUUID()
+      val uuid: AssignedServiceId = "my-device-service".hashCode
       enchantressTestActor ! AddServiceActor(uuid, newServiceActor)
       enchantressTestActor.stateData.shouldBe(EnchantressData(Map(uuid->newServiceActor)))
     }

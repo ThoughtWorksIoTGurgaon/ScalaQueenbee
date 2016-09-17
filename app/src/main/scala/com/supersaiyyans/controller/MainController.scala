@@ -1,15 +1,16 @@
 package com.supersaiyyans.controller
 
-import com.supersaiyyans.actors.ServicesRepoActor.{ServiceData, FetchAll}
-import com.supersaiyyans.actors.{ServicesRepoActor, TheEnchantressSupervisor, MQTTDiscoveryActor}
+import com.supersaiyyans.actors.ServicesRepoActor.FetchAll
+import com.supersaiyyans.actors.{MQTTDiscoveryActor, ServicesRepoActor, TheEnchantressSupervisor}
 import com.supersaiyyans.packet.JsonCmdPacket
 import play.api.libs.concurrent.Akka
 import play.api.mvc.{Action, Controller}
 import akka.pattern.ask
 import com.supersaiyyans.util.Logger._
+
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
-
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
 
 import scala.concurrent.Future
 

@@ -7,9 +7,11 @@ object CommonMessages {
   object AwaitingDeviceConnect extends State
   object Started extends State
 
-  sealed trait Data
-  sealed trait ServiceData extends Data
-  case class SwitchServiceData(val value: String) extends ServiceData
+
+  trait ServiceState
+
+  case class SwitchServiceState(value: String) extends ServiceState
+  case class ServiceData(name: String, val serviceId: String, deviceId: String, state: ServiceState)
 
   sealed trait Command
   sealed trait NotificationCommand

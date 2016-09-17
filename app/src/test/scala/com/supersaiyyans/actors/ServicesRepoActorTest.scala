@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestActorRef, TestFSMRef, TestKit}
 import com.supersaiyyans.actors.ServicesRepoActor._
 import org.scalatest.{FunSpecLike, Matchers}
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.{ServiceData, SwitchServiceState}
 import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
 class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers with FunSpecLike with ImplicitSender {
@@ -30,7 +31,7 @@ class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers w
 
       serviceRepoActorRef.stateName should be(Running)
 
-      val uuid = UUID.randomUUID()
+      val uuid = "somedevice-service".hashCode
       serviceRepoActorRef ! UpdateServiceData(uuid, data)
       serviceRepoActorRef.stateName should be(Running) // Todo - figure out if there is a way to say "should stay same"
 
@@ -43,7 +44,7 @@ class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers w
 
       val switchServiceData = ServiceData(name = "toggle bedroom light", serviceId = "SW101", deviceId = "DId101", state = SwitchServiceState("ON"))
 
-      val uuid: AssignedServiceId = UUID.randomUUID()
+      val uuid = "somedevice-service".hashCode
 
       serviceRepoActorRef ! AddService(uuid, switchServiceData)
       serviceRepoActorRef.stateName should be(Running)

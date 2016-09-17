@@ -3,30 +3,12 @@ package com.supersaiyyans.actors
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.event.LoggingReceive
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
+import com.supersaiyyans.actors.ServicesRepoActor.AddService
 import com.supersaiyyans.packet._
 import com.supersaiyyans.util.Logger
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.SwitchServiceData
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
 import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
-
-class SwitchServiceActor(override val assignedServiceId: AssignedServiceId, override val deviceId: String, override val serviceId: String
-                                  , switchData: SwitchServiceData, override val serviceRepoActor: ActorRef, override val channelType: ChannelType)
-  extends ServiceActor with ActorLogging{
-
-  def receive = LoggingReceive{
-    case _ =>
-  }
-
-  override def preStart(): Unit = {
-    serviceRepoActor ! (assignedServiceId, switchData)
-    super.preStart()
-  }
-
-}
-
-trait JsonTranformer {
-  _: ServiceActor =>
-}
 
 trait ServiceActor extends Actor with RetryConnect with ChannelDecider{
 
@@ -45,6 +27,26 @@ trait ServiceActor extends Actor with RetryConnect with ChannelDecider{
         ,("channelType",channelType.toString)): _*)
   }
 
+}
+
+class SwitchServiceActor(override val assignedServiceId: AssignedServiceId, override val deviceId: String, override val serviceId: String
+                         , switchData: ServiceData, override val serviceRepoActor: ActorRef, override val channelType: ChannelType)
+  extends ServiceActor with ActorLogging{
+
+
+  def receive = LoggingReceive{
+    case _ =>
+  }
+
+  override def preStart(): Unit = {
+    serviceRepoActor ! AddService(assignedServiceId, switchData)
+    super.preStart()
+  }
+
+}
+
+trait JsonTranformer {
+  _: ServiceActor =>
 }
 
 trait ChannelDecider {
@@ -66,12 +68,6 @@ object ServiceActors {
   sealed trait State
 
   object Started extends State
-
-  sealed trait Data
-
-  sealed trait ServiceData extends Data
-
-  case class SwitchServiceData(val value: String) extends ServiceData
 
   class CommandPacket(val packet: JsonCmdPacket) extends Command
 

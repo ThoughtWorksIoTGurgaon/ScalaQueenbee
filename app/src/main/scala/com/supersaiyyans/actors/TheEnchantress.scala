@@ -14,7 +14,7 @@ import com.supersaiyyans.actors.TheEnchantress._
 import com.supersaiyyans.packet.Packet
 import com.supersaiyyans.util.Logger
 import com.supersaiyyans.util.Logger._
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.SwitchServiceData
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.{ServiceData, SwitchServiceState}
 import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
 import scala.concurrent.ExecutionContext.Implicits._
@@ -66,7 +66,7 @@ class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) exten
               assignedServiceId
               , deviceId
               , serviceId
-              , SwitchServiceData("OFF")
+              , ServiceData("SWITCH 1", serviceId, deviceId, SwitchServiceState("OFF"))
               , repoActor
               , protocolType))))
       }
@@ -95,13 +95,8 @@ object TheEnchantress {
 
   def props(repoActor: ActorRef, discoveryActors: List[ActorRef]) = Props(new TheEnchantress(repoActor, discoveryActors))
 
-  trait ServiceState
-
-  case class SwitchServiceState(value: String)
-
   case class AddServiceActor(assignedServiceId: AssignedServiceId, serviceActor: ActorRef)
 
-  case class ServiceData(name: String, val serviceId: String, deviceId: String, state: ServiceState)
 
 }
 
