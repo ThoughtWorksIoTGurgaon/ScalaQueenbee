@@ -10,7 +10,6 @@ object CommonMessages {
 
   trait ServiceState
 
-  case class SwitchServiceState(value: String) extends ServiceState
   case class ServiceData(name: String, val serviceId: String, deviceId: String, state: ServiceState)
 
   sealed trait Command

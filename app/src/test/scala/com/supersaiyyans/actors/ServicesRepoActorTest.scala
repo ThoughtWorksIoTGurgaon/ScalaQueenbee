@@ -1,13 +1,11 @@
 package com.supersaiyyans.actors
 
-import java.util.UUID
-
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import akka.testkit.{ImplicitSender, TestActorRef, TestFSMRef, TestKit}
+import akka.actor.ActorSystem
+import akka.testkit.{ImplicitSender, TestFSMRef, TestKit}
 import com.supersaiyyans.actors.ServicesRepoActor._
+import com.supersaiyyans.actors.SwitchServiceActor.SwitchServiceState
 import org.scalatest.{FunSpecLike, Matchers}
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.{ServiceData, SwitchServiceState}
-import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
 
 class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers with FunSpecLike with ImplicitSender {
 

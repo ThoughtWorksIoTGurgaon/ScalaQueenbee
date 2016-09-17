@@ -1,20 +1,16 @@
 package com.supersaiyyans.actors
 
-import java.util.UUID
-
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.fasterxml.jackson.annotation.ObjectIdGenerators.UUIDGenerator
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
 import com.supersaiyyans.actors.ProfileType.ProfileType
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.ChannelType
-import com.supersaiyyans.actors.ServicesRepoActor.AddService
+import com.supersaiyyans.actors.SwitchServiceActor.SwitchServiceState
 import com.supersaiyyans.actors.TheEnchantress._
 import com.supersaiyyans.packet.Packet
-import com.supersaiyyans.util.Logger
 import com.supersaiyyans.util.Logger._
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.{ServiceData, SwitchServiceState}
+import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
 import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
 
 import scala.concurrent.ExecutionContext.Implicits._
