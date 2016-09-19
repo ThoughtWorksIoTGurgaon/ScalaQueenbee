@@ -2,8 +2,8 @@ package com.supersaiyyans.actors
 
 import akka.actor.{ActorLogging, FSM, Props}
 import com.supersaiyyans.actors.ServicesRepoActor._
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
-import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
+import com.supersaiyyans.actors.CommonMessages.ServiceData
+import com.supersaiyyans.util.Commons.AssignedServiceId
 
 class ServicesRepoActor extends FSM[State, Data] with ActorLogging {
 
@@ -30,6 +30,9 @@ class ServicesRepoActor extends FSM[State, Data] with ActorLogging {
     case Event(newService: AddService, oldData: ServicesData) =>
       val newData = oldData.data + ((newService.assignedServiceId, newService.serviceData))
       stay using ServicesData(newData)
+
+    case Event(CommandPacket(serviceData), services: ServicesData) =>
+      stay
 
     case _ => log.error("Unexpected message found")
       sender ! UnexpectedMessage
@@ -62,6 +65,8 @@ object ServicesRepoActor {
   case class UpdateServiceData(assignedServiceId: AssignedServiceId, serviceData: ServiceData) extends SupportedEvent
 
   case class FetchServiceData(assignedServiceId: AssignedServiceId) extends SupportedEvent
+
+  case class CommandPacket(serviceData: ServiceData) extends SupportedEvent
 
   case object UnexpectedMessage
 

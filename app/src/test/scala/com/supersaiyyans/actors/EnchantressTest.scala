@@ -7,7 +7,7 @@ import com.supersaiyyans.actors.TheEnchantress.{AddServiceActor, DiscoveredServi
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
 import org.scalatest.{FunSpecLike, Matchers}
-import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
+import com.supersaiyyans.util.Commons.AssignedServiceId
 
 
 class EnchantressTest extends TestKit(ActorSystem("TheEnchantressTest")) with Matchers with FunSpecLike {

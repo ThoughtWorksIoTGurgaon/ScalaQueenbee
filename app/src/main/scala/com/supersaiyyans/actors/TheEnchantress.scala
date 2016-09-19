@@ -6,12 +6,12 @@ import akka.util.Timeout
 import com.supersaiyyans.actors.MQTTDiscoveryActor.WhichProtocol
 import com.supersaiyyans.actors.ProfileType.ProfileType
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.ChannelType
-import com.supersaiyyans.actors.SwitchServiceActor.SwitchServiceState
+import com.supersaiyyans.actors.ServicesRepoActor.CommandPacket
 import com.supersaiyyans.actors.TheEnchantress._
 import com.supersaiyyans.packet.Packet
 import com.supersaiyyans.util.Logger._
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
-import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
+import com.supersaiyyans.actors.CommonMessages.{ServiceData, SwitchServiceState}
+import com.supersaiyyans.util.Commons.AssignedServiceId
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.duration._
@@ -47,6 +47,9 @@ class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) exten
       debug(s"RepoActor is down,enchantress wont work properly: ${message}")
       stay
 
+    case Event(CommandPacket(serviceData), data: EnchantressData) =>
+      stay
+
     case msg@_ =>
       debug(s"Enchantress received unknown message!")
       stay
@@ -62,7 +65,7 @@ class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) exten
               assignedServiceId
               , deviceId
               , serviceId
-              , ServiceData("SWITCH 1", serviceId, deviceId, SwitchServiceState("OFF"))
+              , ServiceData("SWITCH 1", assignedServiceId, SwitchServiceState("OFF"))
               , repoActor
               , protocolType))))
       }

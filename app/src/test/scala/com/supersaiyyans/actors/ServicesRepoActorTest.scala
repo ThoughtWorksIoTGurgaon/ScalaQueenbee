@@ -3,9 +3,8 @@ package com.supersaiyyans.actors
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestFSMRef, TestKit}
 import com.supersaiyyans.actors.ServicesRepoActor._
-import com.supersaiyyans.actors.SwitchServiceActor.SwitchServiceState
 import org.scalatest.{FunSpecLike, Matchers}
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
+import com.supersaiyyans.actors.CommonMessages.{ServiceData, SwitchServiceState}
 
 class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers with FunSpecLike with ImplicitSender {
 
@@ -25,7 +24,7 @@ class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers w
 
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
-      val data: ServiceData = ServiceData(name = "toggle bedroom light", serviceId = "SW101", deviceId = "DId101", state = SwitchServiceState("ON"))
+      val data: ServiceData = ServiceData(name = "toggle bedroom light", "SW101DId101".hashCode, state = SwitchServiceState("ON"))
 
       serviceRepoActorRef.stateName should be(Running)
 
@@ -40,7 +39,7 @@ class ServicesRepoActorTest extends TestKit(ActorSystem("name")) with Matchers w
 
       val serviceRepoActorRef = TestFSMRef(new ServicesRepoActor)
 
-      val switchServiceData = ServiceData(name = "toggle bedroom light", serviceId = "SW101", deviceId = "DId101", state = SwitchServiceState("ON"))
+      val switchServiceData = ServiceData(name = "toggle bedroom light", "SW101DId101".hashCode, state = SwitchServiceState("ON"))
 
       val uuid = "somedevice-service".hashCode
 

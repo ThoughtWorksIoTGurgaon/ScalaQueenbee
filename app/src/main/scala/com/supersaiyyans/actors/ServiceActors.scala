@@ -6,11 +6,10 @@ import akka.event.LoggingReceive
 import com.supersaiyyans.actors.ChannelDecider.Write
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
 import com.supersaiyyans.actors.ServicesRepoActor.{AddService, UpdateServiceData}
-import com.supersaiyyans.actors.SwitchServiceActor.{SwitchServiceState}
 import com.supersaiyyans.packet._
 import com.supersaiyyans.util.Logger
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.{ServiceData, ServiceState}
-import src.main.scala.com.supersaiyyans.util.Commons.AssignedServiceId
+import com.supersaiyyans.actors.CommonMessages.{ServiceData, ServiceState, SwitchServiceState}
+import com.supersaiyyans.util.Commons.AssignedServiceId
 
 
 trait ServiceActor extends Actor with RetryConnect with ChannelDecider {
@@ -34,8 +33,6 @@ trait ServiceActor extends Actor with RetryConnect with ChannelDecider {
 
 object SwitchServiceActor {
 
-  sealed trait Message
-  case class SwitchServiceState(value: String) extends ServiceState with Message
 
 }
 
@@ -107,7 +104,11 @@ object ChannelDecider {
 
   trait Message
 
-  case class Write(deviceId: String, serviceId: Int, source: String, serviceState: ServiceState)
+  case class Write(deviceId: String, serviceId: Int, source: String, serviceState: ServiceState) {
+    def toBinary = {
+
+    }
+  }
 
 }
 

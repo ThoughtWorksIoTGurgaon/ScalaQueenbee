@@ -1,6 +1,4 @@
-package src.main.scala.com.supersaiyyans.util
-
-import java.util.UUID
+package com.supersaiyyans.util
 
 object Commons {
 

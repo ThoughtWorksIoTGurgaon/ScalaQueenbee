@@ -1,18 +1,18 @@
 package com.supersaiyyans.controller
 
-import com.supersaiyyans.actors.ServicesRepoActor.FetchAll
+import com.supersaiyyans.actors.ServicesRepoActor.{CommandPacket, FetchAll}
 import com.supersaiyyans.actors.{MQTTDiscoveryActor, ServicesRepoActor, TheEnchantressSupervisor}
 import com.supersaiyyans.packet.JsonCmdPacket
 import play.api.libs.concurrent.Akka
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, Result}
 import akka.pattern.ask
 import com.supersaiyyans.util.Logger._
 
 import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.Json
-import src.main.scala.com.supersaiyyans.actors.CommonMessages.ServiceData
-import src.main.scala.com.supersaiyyans.actors.JsonTranslations.Implicits._
+import play.api.libs.json.{JsError, JsSuccess, Json}
+import com.supersaiyyans.actors.CommonMessages.ServiceData
+import com.supersaiyyans.actors.JsonTranslations.Implicits._
 
 import scala.concurrent.Future
 
@@ -20,19 +20,12 @@ object MainController extends Controller {
 
   import play.api.Play.current
 
-  import src.main.scala.com.supersaiyyans.actors.JsonTranslations.Implicits._
+  import com.supersaiyyans.actors.JsonTranslations.Implicits._
 
   val repoActor = Akka.system.actorOf(ServicesRepoActor.props, "RepoActor")
 
   val enchantressSupervisor = Akka.system.actorOf(TheEnchantressSupervisor.props(repoActor), "EnchantressSupervisor")
 
-  def serviceCommand = Action(parse.json) {
-    request =>
-      request.body.validate[JsonCmdPacket].map {
-        jsonRequest =>
-          Ok(jsonRequest.toString).withHeaders("Access-Control-Allow-Origin" -> "*")
-      }.recoverTotal(e => BadRequest)
-  }
 
   def option(path: String) = Action {
     Ok("").withHeaders(
@@ -52,5 +45,14 @@ object MainController extends Controller {
         services =>
           Ok(Json.toJson(services))
       }
+  }
+
+  def serviceCommand = Action(parse.json){
+      json=>
+          json.body.validate[ServiceData].map{
+            serviceData =>
+              enchantressSupervisor ! CommandPacket(serviceData)
+              Ok("")
+          }.recoverTotal(e => BadRequest("Invlaid Json Data"))
   }
 }
