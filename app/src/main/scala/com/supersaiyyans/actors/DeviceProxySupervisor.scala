@@ -24,6 +24,8 @@ abstract class DeviceProxySupervisor extends FSM[State, Data] {
 
   def onDeviceDisconnect: PartialFunction[Event, Data]
 
+  def onMessageToDevice: PartialFunction[Event, Data]
+
   def onMessageReceivedFromDevice: PartialFunction[Event, MessageReceivedFromDevice]
 
 
@@ -48,12 +50,16 @@ abstract class DeviceProxySupervisor extends FSM[State, Data] {
           deviceListener ! messageFromDevice
           stay.using(QueuedMessages(Nil))
       } orElse {
+        onMessageToDevice.andThen {
+          state =>
+            stay.using(QueuedMessages(Nil))
+        }
+      } orElse {
         case Event(someMessage: Any, _: Any) =>
           stay using QueuedMessages(Nil)
       }
     }
   }
-
 
 
   onTransition {

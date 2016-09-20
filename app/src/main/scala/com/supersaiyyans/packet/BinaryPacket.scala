@@ -38,5 +38,5 @@ case class WritePacket(deviceId: String, serviceId: Int, payload: Array[(Int, Ar
   }
 
   override val getSourceAddress: String = source
-  override val getDestinationAddress: String = ???
+  override val getDestinationAddress: String = ""
 }

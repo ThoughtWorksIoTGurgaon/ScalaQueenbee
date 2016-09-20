@@ -47,7 +47,16 @@ class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) exten
       debug(s"RepoActor is down,enchantress wont work properly: ${message}")
       stay
 
-    case Event(CommandPacket(serviceData), data: EnchantressData) =>
+    case Event(cmd@CommandPacket(serviceData), data: EnchantressData) =>
+      val handler =
+        data
+          .serviceActors
+          .get(serviceData.assignedServiceId) match {
+          case None =>
+            log.debug(s"No handler found for : ${serviceData.assignedServiceId}")
+          case Some(handler) =>
+            handler ! cmd.serviceData.state
+        }
       stay
 
     case msg@_ =>
@@ -57,7 +66,7 @@ class TheEnchantress(repoActor: ActorRef, discoveryActors: List[ActorRef]) exten
 
   def ServiceActorDecider(assignedServiceId: AssignedServiceId, profileId: ProfileType, deviceId: String, serviceId: String, repoActor: ActorRef, protocolType: ChannelType, mapOfExistingActors: Map[AssignedServiceId, ActorRef])
                          (context: ActorContext) = {
-    if(!mapOfExistingActors.keys.exists(_ == assignedServiceId)){
+    if (!mapOfExistingActors.keys.exists(_ == assignedServiceId)) {
       profileId match {
         case ProfileType.SwitchProfile =>
           self ! AddServiceActor(assignedServiceId,

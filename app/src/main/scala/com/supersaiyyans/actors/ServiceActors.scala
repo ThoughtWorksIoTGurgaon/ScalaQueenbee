@@ -104,9 +104,14 @@ object ChannelDecider {
 
   trait Message
 
-  case class Write(deviceId: String, serviceId: Int, source: String, serviceState: ServiceState) {
+  case class Write(deviceId: String, serviceId: Int, source: String, serviceState: SwitchServiceState) {
     def toBinary = {
-
+      val writePacket = serviceState.value match {
+        case "OFF" => WritePacket(deviceId, serviceId, Array(Tuple2(2,Array(2.toByte))), "UI")
+        case "ON" => WritePacket(deviceId, serviceId, Array(Tuple2(2,Array(1.toByte))), "UI")
+      }
+      print(s"Write Packet Binary Data: ${writePacket.toByteData}")
+      writePacket.toByteData
     }
   }
 

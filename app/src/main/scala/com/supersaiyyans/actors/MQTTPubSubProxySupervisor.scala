@@ -3,7 +3,9 @@ package com.supersaiyyans.actors
 import java.net.InetSocketAddress
 
 import akka.actor.{ActorRef, Props}
-import com.supersaiyyans.actors.DeviceProxySupervisor.MessageReceivedFromDevice
+import com.supersaiyyans.actors.ChannelDecider.Write
+import com.supersaiyyans.actors.DeviceProxySupervisor.{Data, MessageReceivedFromDevice}
+import com.supersaiyyans.packet.WritePacket
 import com.supersaiyyans.util.Logger._
 import com.typesafe.config.ConfigFactory
 import net.sigusr.mqtt.api._
@@ -29,6 +31,14 @@ abstract class MQTTPubSubProxySupervisor(override val deviceListener: ActorRef, 
     case Event(msg: Message, stateData) =>
       debug(s"Message Receved: ${msg.payload}")
       MessageReceivedFromDevice(msg.payload)
+  }
+
+  override def onMessageToDevice = {
+    case Event(writePacket: Write, stateData) =>
+      val topic = s"/device/${writePacket.deviceId}/cmd"
+      println(s"Sending message to topic : ${topic}")
+      deviceProxy ! Publish(topic,writePacket.toBinary)
+    stateData
   }
 
 }
