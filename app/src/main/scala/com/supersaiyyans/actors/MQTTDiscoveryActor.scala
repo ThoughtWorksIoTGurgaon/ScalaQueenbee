@@ -70,6 +70,7 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
   def initializing: Receive = LoggingReceive{
 
     case TryConnect =>
+      debug("-------------------Trying to connect........--------------------")
       mqttManager ! Connect("QUEENBEE_MQTT_DISCOVERY_ACTOR_CONNECTING")
       scheduler.scheduleOnce(5 minutes, self, TryConnect)
     case Connected =>
@@ -81,6 +82,7 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
   def ready: Receive = LoggingReceive{
 
     case Disconnected | ConnectionFailure =>
+      debug("-----------Got disconnected------------")
       scheduler.scheduleOnce(5 minutes, self, TryConnect)
       context.become(initializing)
 
