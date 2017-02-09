@@ -101,8 +101,8 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
       debug("Received byteVector:  " + byteVector)
     case WhichProtocol =>
       sender ! myProtocol
-    case x@_ =>
-      debug(s"Unknown message received:${x}")
+    case unknownMessage@_ =>
+      debug(s"Unknown message received:$unknownMessage")
   }
 
 }
