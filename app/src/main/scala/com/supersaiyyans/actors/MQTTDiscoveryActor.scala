@@ -30,7 +30,6 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
 
   val MQTTPORT = ConfigFactory.load.as[Int]("mqtt.port")
   val MQTTHOST = ConfigFactory.load.as[String]("mqtt.host")
-
   val AUTO_RECONNECT_INTERVAL_DURATION: FiniteDuration = ConfigFactory.load.as[FiniteDuration]("mqtt.autoreconnect.intervalduration")
 
   debugWithMapArg("Starting MQTT Discovery actor with args", Map(
@@ -79,7 +78,7 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
     case TryConnect =>
       debug("-------------------Trying to connect........--------------------")
       mqttManager ! Connect("QUEENBEE_MQTT_DISCOVERY_ACTOR_CONNECTING")
-      scheduler.scheduleOnce(5 minutes, self, TryConnect)
+      scheduler.scheduleOnce(AUTO_RECONNECT_INTERVAL_DURATION, self, TryConnect)
     case Connected =>
       debug("-------------------Discovery Actor Connected--------------------")
       mqttManager ! Subscribe(Vector((subscribeTopic, AtMostOnce)), MessageId(10))
@@ -90,7 +89,7 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
 
     case Disconnected | ConnectionFailure =>
       debug("-----------Got disconnected------------")
-      scheduler.scheduleOnce(5 minutes, self, TryConnect)
+      scheduler.scheduleOnce(AUTO_RECONNECT_INTERVAL_DURATION, self, TryConnect)
       context.become(initializing)
 
     case Message(topic, byteVector) =>
