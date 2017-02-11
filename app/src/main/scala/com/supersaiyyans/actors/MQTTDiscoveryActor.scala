@@ -30,6 +30,10 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
 
   val MQTTPORT = ConfigFactory.load.as[Int]("mqtt.port")
   val MQTTHOST = ConfigFactory.load.as[String]("mqtt.host")
+
+  val AUTO_RECONNECT_INTERVAL_DURATION: FiniteDuration = ConfigFactory.load.as[FiniteDuration]("mqtt.autoreconnect.intervalduration")
+  debug(s"Auto reconnect interval duration is $AUTO_RECONNECT_INTERVAL_DURATION")
+
   var queuedMessagesBuffer = Seq.empty
   val subscribeTopic = "/device/+/data"
   val mqttManager = context.actorOf(
