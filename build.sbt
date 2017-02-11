@@ -47,7 +47,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.14",
   "com.typesafe.akka" %% "akka-slf4j" % "2.3.11",
   "com.softwaremill.macwire" %% "macros" % "2.1.0",
-  "com.iheart" %% "ficus" % "1.1.3"
+  "com.iheart" %% "ficus" % "1.1.3",
+  "com.typesafe.akka" %% "akka-testkit" % "2.3.9" % "test"
 )
 
 fork in run := true
