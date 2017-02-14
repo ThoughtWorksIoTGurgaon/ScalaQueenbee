@@ -10,7 +10,7 @@ import com.supersaiyyans.actors.TheEnchantress.DiscoveredService
 import com.supersaiyyans.actors.ServiceActors.SupportedChannelTypes.{ChannelType, MQTT}
 import com.supersaiyyans.actors.ServiceActors.{MQTTActor, ProtocolDescriber, SupportedChannelTypes}
 import com.supersaiyyans.util.Logger._
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import net.sigusr.mqtt.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -24,13 +24,13 @@ TODO:
 3.Supervisor Strategy
  */
 
-class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor with RetryConnect with ActorLogging{
+class MQTTDiscoveryActor(mqttConfig : Config) extends Actor with ProtocolDescriber with MQTTActor with RetryConnect with ActorLogging{
 
   import net.ceedubs.ficus.Ficus._
 
-  val MQTTPORT = ConfigFactory.load.as[Int]("mqtt.port")
-  val MQTTHOST = ConfigFactory.load.as[String]("mqtt.host")
-  val AUTO_RECONNECT_INTERVAL_DURATION: FiniteDuration = ConfigFactory.load.as[FiniteDuration]("mqtt.autoreconnect.intervalduration")
+  val MQTTPORT = mqttConfig.getInt("port")
+  val MQTTHOST = mqttConfig.getString("host")
+  val AUTO_RECONNECT_INTERVAL_DURATION = mqttConfig.as[FiniteDuration]("autoreconnect.intervalduration")
 
   debugWithMapArg("Starting MQTT Discovery actor with args", Map(
     "MQTT Host" -> MQTTHOST,
@@ -115,7 +115,7 @@ class MQTTDiscoveryActor() extends Actor with ProtocolDescriber with MQTTActor w
 
 object MQTTDiscoveryActor {
   object WhichProtocol
-  def props() = Props(new MQTTDiscoveryActor())
+  def props() = Props(new MQTTDiscoveryActor(ConfigFactory.load().getConfig("mqtt")))
 }
 
 
